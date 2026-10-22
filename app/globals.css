@@ -1,26 +1,337 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * Wildwoods brand tokens.
+ * Base hues come from the Wildwoods palette (deep teal, turquoise, ocean blue,
+ * sunny yellow, sunset orange, warm coral). Everything else is a tint or shade
+ * of those hues, plus white and a teal-black ink for long-form text.
+ */
+@theme {
+  /* Drop Tailwind's default palette so only brand colours are available. */
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  --color-teal-50: #e9f3f5;
+  --color-teal-100: #cfe4e9;
+  --color-teal-200: #a1c9d2;
+  --color-teal-300: #6aa9b6;
+  --color-teal-400: #357e8e;
+  --color-teal-500: #105665;
+  --color-teal-600: #0d4855;
+  --color-teal-700: #0a3b46;
+  --color-teal-800: #082f38;
+  --color-teal-900: #06222a;
+  --color-teal-950: #04171c;
+
+  --color-turquoise-50: #e8f8fb;
+  --color-turquoise-100: #c6eef5;
+  --color-turquoise-200: #93dfeb;
+  --color-turquoise-300: #5ccede;
+  --color-turquoise-400: #2fc2d6;
+  --color-turquoise-500: #12b9d0;
+  --color-turquoise-600: #0f9bb0;
+  --color-turquoise-700: #0c7c8d;
+
+  --color-ocean-100: #cbe7ef;
+  --color-ocean-300: #63aec4;
+  --color-ocean-500: #087d9c;
+  --color-ocean-600: #066a85;
+  --color-ocean-700: #05566c;
+
+  --color-sun-50: #fffbe0;
+  --color-sun-100: #fff5b8;
+  --color-sun-200: #ffec80;
+  --color-sun-300: #ffe347;
+  --color-sun-400: #ffda1f;
+  --color-sun-500: #ffd400;
+  --color-sun-600: #e0ba00;
+
+  --color-orange-100: #fde4cf;
+  --color-orange-200: #fbc79e;
+  --color-orange-300: #f8a462;
+  --color-orange-500: #f47b20;
+  --color-orange-600: #d8661a;
+
+  --color-coral-100: #fcdccf;
+  --color-coral-300: #f5916b;
+  --color-coral-500: #f15a24;
+  --color-coral-600: #d24816;
+  --color-coral-700: #a9390f;
+
+  /* Warm off-white: a very light tint of sunny yellow */
+  --color-cream: #fffaf0;
+  --color-cream-200: #fdf1d8;
+  --color-ink: #0b2a31;
+
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument), ui-serif, Georgia, serif;
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  --radius-blob: 2.5rem;
+  --shadow-soft: 0 24px 60px -24px rgb(6 34 42 / 0.35);
+  --shadow-lift: 0 30px 80px -30px rgb(6 34 42 / 0.45);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    color-scheme: light;
+    --nav-h: 76px;
+  }
+
+  html {
+    scroll-padding-top: calc(var(--nav-h) + 1.5rem);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: var(--color-sun-500);
+    color: var(--color-teal-800);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-sun-500);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  /* On light surfaces the yellow ring is low-contrast; use teal instead. */
+  .on-light :focus-visible {
+    outline-color: var(--color-ocean-500);
+  }
+
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+  }
+
+  /* Our search fields provide their own clear/close controls. */
+  input[type="search"]::-webkit-search-cancel-button,
+  input[type="search"]::-webkit-search-decoration {
+    appearance: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Oversized editorial display type: condensed, heavy, uppercase. */
+  .display {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-stretch: 75%;
+    font-variation-settings: "wdth" 75, "opsz" 96;
+    text-transform: uppercase;
+    letter-spacing: -0.015em;
+    line-height: 0.86;
+  }
+
+  .display-accent {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: -0.01em;
+    font-variation-settings: normal;
+  }
+
+  .eyebrow {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  /* Organic "wave-lip" pill used on the navigation bar. */
+  .nav-shape {
+    --cap: 46px;
+    -webkit-mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 64' preserveAspectRatio='none'%3E%3Cpath d='M46 0H24C10 0 2 9 1.2 22 0.4 36 6 50 17 58c5 4 11 6 17 6h12z'/%3E%3C/svg%3E")
+        left / var(--cap) 100% no-repeat,
+      linear-gradient(#000 0 0) center / calc(100% - 2 * var(--cap) + 2px) 100% no-repeat,
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 64' preserveAspectRatio='none'%3E%3Cpath d='M0 64h22c14 0 22-9 22.8-22C45.6 28 40 14 29 6 24 2 18 0 12 0H0z'/%3E%3C/svg%3E")
+        right / var(--cap) 100% no-repeat;
+    mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 64' preserveAspectRatio='none'%3E%3Cpath d='M46 0H24C10 0 2 9 1.2 22 0.4 36 6 50 17 58c5 4 11 6 17 6h12z'/%3E%3C/svg%3E")
+        left / var(--cap) 100% no-repeat,
+      linear-gradient(#000 0 0) center / calc(100% - 2 * var(--cap) + 2px) 100% no-repeat,
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 46 64' preserveAspectRatio='none'%3E%3Cpath d='M0 64h22c14 0 22-9 22.8-22C45.6 28 40 14 29 6 24 2 18 0 12 0H0z'/%3E%3C/svg%3E")
+        right / var(--cap) 100% no-repeat;
+  }
+
+  /* Dual-thumb price slider: two stacked native range inputs. */
+  .range-dual {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    appearance: none;
+    background: none;
+    pointer-events: none;
+  }
+  .range-dual::-webkit-slider-thumb {
+    appearance: none;
+    pointer-events: auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    background: var(--color-sun-500);
+    border: 4px solid var(--color-teal-500);
+    box-shadow: 0 4px 12px -2px rgb(6 34 42 / 0.4);
+    cursor: grab;
+  }
+  .range-dual::-moz-range-thumb {
+    pointer-events: auto;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--color-sun-500);
+    border: 4px solid var(--color-teal-500);
+    cursor: grab;
+  }
+  .range-dual:focus-visible::-webkit-slider-thumb {
+    outline: 3px solid var(--color-ocean-500);
+    outline-offset: 2px;
+  }
+  .range-dual:focus-visible::-moz-range-thumb {
+    outline: 3px solid var(--color-ocean-500);
+    outline-offset: 2px;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* SplitText line masks: bleed slightly so tall caps and italics aren't clipped. */
+  .split-line-mask {
+    padding: 0.1em 0.06em;
+    margin: -0.1em -0.06em;
+  }
+}
+
+/*
+ * Intro choreography. Elements marked [data-intro] start hidden only when JS is
+ * available (the `js` class is set by an inline script before first paint).
+ * A delayed CSS fallback reveals them even if the animation bundle never runs.
+ */
+.js [data-intro] {
+  opacity: 0;
+  animation: intro-fallback 0.6s ease 2.6s forwards;
+}
+
+@keyframes intro-fallback {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-intro] {
+    opacity: 1;
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.nav-enter {
+  animation: nav-enter 1s var(--ease-out-expo) 0.1s both;
+}
+
+@keyframes nav-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-28px) scale(0.97);
+  }
+}
+
+@keyframes scroll-cue {
+  0% {
+    transform: translateY(-100%);
+  }
+  60%,
+  100% {
+    transform: translateY(220%);
+  }
+}
+
+/* Leaflet theming to match the brand */
+.ww-map .leaflet-container {
+  font-family: var(--font-sans);
+  background: var(--color-turquoise-50);
+}
+
+/* Soften the default OSM palette so it sits comfortably beside the brand colours. */
+.ww-map .leaflet-tile-pane {
+  filter: saturate(0.55) contrast(0.97) brightness(1.03);
+}
+
+.ww-map .leaflet-control-zoom a {
+  color: var(--color-teal-600);
+  border-color: var(--color-teal-100);
+}
+
+.ww-map .leaflet-control-attribution {
+  font-size: 10px;
+  background: rgb(255 255 255 / 0.85);
+}
+
+.ww-map .leaflet-tooltip.ww-tooltip {
+  background: var(--color-teal-600);
+  color: white;
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 12px;
+  box-shadow: var(--shadow-soft);
+}
+
+.ww-map .leaflet-tooltip.ww-tooltip::before {
+  display: none;
+}
+
+.ww-marker {
+  transition: transform 0.35s var(--ease-out-expo);
+}
+
+.ww-marker:hover,
+.ww-marker:focus-visible,
+.ww-marker.is-active {
+  transform: translateY(-4px) scale(1.12);
 }

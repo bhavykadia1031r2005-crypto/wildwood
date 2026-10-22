@@ -1,36 +1,111 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# The Wildwoods, New Jersey — destination website
 
-## Getting Started
-
-First, run the development server:
+Homepage and supporting pages for a Wildwoods tourism site, built with
+Next.js 16 (App Router, TypeScript), Tailwind CSS 4, GSAP + ScrollTrigger,
+Motion for React, Leaflet and Lucide.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env.local   # optional — see "Configuration"
+npm run dev                  # http://localhost:3000
+npm run build && npm start   # production
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## What's on the homepage
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. **Floating navigation**: capsule bar with wave-lip ends (`.nav-shape` in
+   `globals.css`), active-section indicator, search overlay (`/` or ⌘K), hide on
+   scroll down, animated mobile menu.
+2. **Split video hero**: 50/50 beach / boardwalk videos with a draggable,
+   keyboard-accessible seam (30–70%), pause control, parallax and an intro reveal.
+   On mobile the panels stack.
+3. **Itinerary builder** (`#itinerary`): style, length, interests, group and
+   optional budget; a live "trip ticket"; a day-by-day plan generated locally
+   from `data/itinerary.ts` (no AI service) with shuffle, copy and share.
+4. **Explore by area** (`#explore`): Leaflet map with category filters, an
+   illustrated 2D island with clickable areas, and a drag-to-look panorama viewer.
+5. **Places to stay** (`#stays`): search, type/area/price/rating/amenity/guest
+   filters, sort, active chips, mobile filter drawer, empty state, details dialog.
+6. **Photo spots** (`#things-to-do`): scroll-driven filmstrip, filterable
+   asymmetric gallery, lightbox (keyboard + swipe), and the QR "pocket guide" card.
+7. **Destination CTA** (`#plan`).
+8. **Footer**: link columns, newsletter (validated, with a `/api/newsletter`
+   route), legal links, credits and back to top.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Supporting routes: `/guide` (the QR destination), `/events`, `/credits`,
+`/legal/privacy|terms|accessibility` (placeholders) and a branded 404.
 
-## Learn More
+## Configuration
 
-To learn more about Next.js, take a look at the following resources:
+All team-supplied values live in `lib/site.ts`, fed by the environment variables
+in `.env.example`. Anything left blank is hidden or clearly labeled, never
+guessed:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Item | Behavior when not configured |
+| --- | --- |
+| Logo (`NEXT_PUBLIC_LOGO_SRC`) | Placeholder sun-and-waves mark (see `public/brand/README.md`) |
+| Site URL / QR target | QR uses the current browser origin + `/guide` and notes when it's a local address |
+| Social profiles | Icons shown disabled with "coming soon" |
+| Contact details | Not rendered |
+| Legal URLs | Link to local placeholder pages |
+| Map tiles | OpenStreetMap community tiles (switch to a keyed provider for production) |
+| Newsletter webhook | Sign-ups validated but not stored; UI says "preview mode" |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Content and data
 
-## Deploy on Vercel
+Content is separated from presentation in `data/`, so each file can be swapped
+for an API later:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `data/attractions.ts`: areas and points of interest. Coordinates were looked
+  up from OpenStreetMap and are labeled approximate in the UI. Confirm
+  descriptions with venues before launch.
+- `data/accommodations.ts`: **sample listings only.** Names, prices and ratings
+  are fictional and are labeled "Sample" everywhere they appear. Replace with a
+  booking or partner feed that matches the `Stay` type.
+- `data/itinerary.ts` + `lib/itinerary.ts`: activity library and the
+  deterministic local generator.
+- `data/gallery.ts`, `data/media.ts`: gallery content and the image registry,
+  including alt text and licence credit for every photo.
+- `data/search.ts`: the site search index, built from the files above.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Media
+
+All photography is real Wildwoods imagery from Wikimedia Commons (public domain,
+CC0, CC BY and CC BY-SA). Credits appear in the lightbox and on `/credits`.
+
+- **Hero videos** (`public/media/hero/*.mp4`, ~3–4.5 MB each) are Ken Burns
+  montages rendered from those photos, because no licensed Wildwoods footage was
+  available. Replace them with real footage by dropping new files in place (keep
+  the names, or update `heroVideos` in `data/media.ts`) and regenerating the
+  `*-poster.webp` first frames. Suggested spec: H.264 MP4, ~960×1200, 15–20 s
+  seamless loop, no audio, under 5 MB.
+- **Panoramas** (`public/images/panoramas/`) are wide crops of standard photos,
+  labeled in the viewer as "not a 360° capture". `PanoramaScene.kind` is
+  reserved for real 360° media; true equirectangular rendering would need a
+  WebGL viewer (e.g. three.js), loaded only when that tab opens.
+- **Logo**: not supplied with this build. See `public/brand/README.md`.
+
+## Animation system
+
+- GSAP owns scroll storytelling (`lib/animation.ts`, `components/animation/*`):
+  masked line reveals via SplitText (`data-split`), batched entrances
+  (`data-reveal`), parallax, the hero intro and the gallery filmstrip. Everything
+  runs inside `useGSAP` + `gsap.matchMedia()`, so it cleans up on unmount and is
+  skipped under `prefers-reduced-motion`.
+- Motion for React handles UI state: menus, dialogs, tabs, filters and the
+  magnetic buttons (fine pointers only). The two never animate the same element.
+- `ScrollRefresh` recalculates ScrollTrigger when the page height changes
+  (itinerary results, filters, "show more").
+- Content is never hidden without JavaScript: reveals only start once JS runs,
+  and the hero intro has a CSS fallback.
+
+## Project structure
+
+```text
+app/            routes, layout, global styles, /api/newsletter
+components/     navigation, hero, itinerary, explore, stays, gallery, cta,
+                footer, layout, animation, ui, brand
+data/           content and sample data
+lib/            site config, animation setup, hooks, itinerary generator, utils
+public/         images, hero media, brand assets, og-image.jpg
+```
