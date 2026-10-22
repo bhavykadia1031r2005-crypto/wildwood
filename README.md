@@ -162,5 +162,9 @@ components/     navigation, hero, itinerary, explore, stays, gallery, cta,
                 footer, layout, animation, ui, brand
 data/           content and sample data
 lib/            site config, animation setup, hooks, itinerary generator, utils
-public/         images, hero media, brand assets, og-image.jpg
+public/         images, hero media, brand assets, og-image.jpg   
+
+
+
+
 ```
