@@ -2,50 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { CalendarDays } from "lucide-react";
 import { Notice, PageShell } from "@/components/layout/PageShell";
+import { signatureEvents as events } from "@/data/events";
 import { getMedia } from "@/data/media";
 
 export const metadata: Metadata = {
   title: "Events & Festivals",
   description: "Signature seasonal happenings across the Wildwoods, from kite festivals to boardwalk parades.",
 };
-
-/**
- * Recurring, well-established happenings described by season only.
- * Dates, venues and line-ups change every year — connect the official events
- * calendar feed here before launch.
- */
-const events = [
-  {
-    title: "Wildwoods International Kite Festival",
-    season: "Late spring",
-    text: "Giant show kites, stunt teams and colourful windsocks fill the sky above the wide Wildwood beach.",
-    imageId: "kite-festival",
-  },
-  {
-    title: "National Marbles Tournament",
-    season: "Early summer",
-    text: "Young players from across the country compete in a tradition long hosted on the Wildwood beachfront.",
-    imageId: "beach-near-mariners",
-  },
-  {
-    title: "Boardwalk parades & summer nights",
-    season: "Summer",
-    text: "Evening parades, live music and fireworks bring families to the boardwalk throughout the season.",
-    imageId: "family-fun-night",
-  },
-  {
-    title: "Irish Fall Festival",
-    season: "Early fall",
-    text: "North Wildwood celebrates Irish music, dancing and food as the summer crowds give way to autumn.",
-    imageId: "hereford-lighthouse",
-  },
-  {
-    title: "Convention Center shows",
-    season: "Year-round",
-    text: "The Wildwoods Convention Center on the boardwalk hosts expos, sports, concerts and festivals.",
-    imageId: "wildwoods-sign-night",
-  },
-];
 
 export default function EventsPage() {
   return (

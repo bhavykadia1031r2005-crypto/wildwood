@@ -2,28 +2,27 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Editorial section opener: numbered eyebrow, oversized display heading and lede.
+ * Editorial section opener: oversized display heading and optional lede.
  * Animation hooks (`data-split`, `data-reveal`) are picked up by `useReveal`.
  */
 export function SectionHeader({
-  index,
-  eyebrow,
   title,
   lede,
   tone = "dark",
   align = "left",
   id,
   className,
+  titleClassName,
   children,
 }: {
-  index: string;
-  eyebrow: string;
   title: ReactNode;
   lede?: ReactNode;
   tone?: "dark" | "light";
   align?: "left" | "center";
   id?: string;
   className?: string;
+  /** Replaces the default title size and width limit. */
+  titleClassName?: string;
   children?: ReactNode;
 }) {
   const light = tone === "light";
@@ -35,28 +34,12 @@ export function SectionHeader({
         className,
       )}
     >
-      <p
-        data-reveal
-        className={cn(
-          "eyebrow flex items-center gap-3",
-          light ? "text-turquoise-300" : "text-ocean-600",
-        )}
-      >
-        <span
-          className={cn(
-            "inline-flex h-7 min-w-11 items-center justify-center rounded-full px-2.5 font-display text-[0.7rem] tracking-[0.12em]",
-            light ? "bg-white/10 text-sun-400" : "bg-teal-500 text-sun-400",
-          )}
-        >
-          {index}
-        </span>
-        {eyebrow}
-      </p>
       <h2
         id={id}
         data-split
         className={cn(
-          "display max-w-[16ch] text-[clamp(3rem,8.4vw,7.75rem)]",
+          "display",
+          titleClassName ?? "max-w-[16ch] text-[clamp(3rem,8.4vw,7.75rem)]",
           light ? "text-white" : "text-teal-500",
         )}
       >

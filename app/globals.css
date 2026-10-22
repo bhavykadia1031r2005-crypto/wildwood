@@ -119,6 +119,11 @@
     outline-color: var(--color-ocean-500);
   }
 
+  /* Dark panels inside light sections go back to the yellow ring. */
+  .on-dark :focus-visible {
+    outline-color: var(--color-sun-500);
+  }
+
   button,
   [role="button"] {
     cursor: pointer;
@@ -248,6 +253,21 @@
   animation: intro-fallback 0.6s ease 2.6s forwards;
 }
 
+/* Boarding-pass notches cut where the tear-off stub meets the ticket (stub is 340px wide). */
+@media (min-width: 1024px) {
+  .ticket-notched {
+    --notch-x: calc(100% - 340px);
+    -webkit-mask:
+      radial-gradient(circle 16px at var(--notch-x) 0, #0000 96%, #000),
+      radial-gradient(circle 16px at var(--notch-x) 100%, #0000 96%, #000);
+    -webkit-mask-composite: source-in;
+    mask:
+      radial-gradient(circle 16px at var(--notch-x) 0, #0000 96%, #000),
+      radial-gradient(circle 16px at var(--notch-x) 100%, #0000 96%, #000);
+    mask-composite: intersect;
+  }
+}
+
 @keyframes intro-fallback {
   to {
     opacity: 1;
@@ -277,6 +297,15 @@
   from {
     opacity: 0;
     transform: translateY(-28px) scale(0.97);
+  }
+}
+
+@keyframes calendar-tick {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
   }
 }
 

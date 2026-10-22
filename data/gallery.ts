@@ -1,4 +1,4 @@
-/** Photography gallery content. Every image is a licensed Wildwoods photo from `data/media.ts`. */
+/** Photo spots (used by the pocket guide). Every image is a licensed Wildwoods photo from `data/media.ts`. */
 
 export type GalleryCategory =
   | "boardwalk"

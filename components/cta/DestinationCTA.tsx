@@ -62,13 +62,7 @@ export function DestinationCTA() {
       />
 
       <div className="mx-auto max-w-[1320px] px-5 pb-48 pt-28 sm:px-8 md:pb-60 md:pt-40">
-        <p data-reveal className="eyebrow flex items-center gap-3 text-sun-400">
-          <span className="inline-flex h-7 min-w-11 items-center justify-center rounded-full bg-white/10 px-2.5 font-display text-[0.7rem] tracking-[0.12em]">
-            05
-          </span>
-          Your summer starts now
-        </p>
-        <h2 id="cta-title" data-split className="display mt-6 max-w-[13ch] text-[clamp(3.4rem,10vw,9.5rem)]">
+        <h2 id="cta-title" data-split className="display max-w-[13ch] text-[clamp(3.4rem,10vw,9.5rem)]">
           Your next great story <span className="display-accent text-sun-400">starts here.</span>
         </h2>
         <p data-reveal className="mt-8 max-w-xl text-xl leading-relaxed text-white/90 md:text-2xl">

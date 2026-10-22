@@ -141,20 +141,21 @@ export function ExploreByArea() {
       <div aria-hidden="true" className="pointer-events-none absolute -right-32 -top-24 size-[26rem] rounded-full bg-ocean-500/30" />
 
       <div className="relative mx-auto max-w-[1320px] px-5 sm:px-8">
-        <div className="flex flex-col justify-between gap-10 lg:flex-row lg:items-end">
-          <SectionHeader
-            id="explore-title"
-            index="02"
-            tone="light"
-            eyebrow="Explore by area"
-            title={
-              <>
-                Find your <br className="hidden md:block" />
-                <span className="display-accent text-sun-400">kind of</span> Wildwoods.
-              </>
-            }
-            lede="Four shore towns share one barrier island. Browse the live map, wander the illustrated guide, or step into a scene."
-          />
+        <SectionHeader
+          id="explore-title"
+          tone="light"
+          titleClassName="whitespace-nowrap text-[clamp(1.25rem,calc((100vw_-_4.5rem)/10.5),7.4rem)]"
+          title={
+            <>
+              Find your <span className="display-accent text-sun-400">kind of</span> Wildwoods.
+            </>
+          }
+        />
+
+        <div className="mt-8 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
+          <p data-reveal className="max-w-xl text-lg leading-relaxed text-teal-50/85 md:text-xl">
+            Four shore towns share one barrier island. Browse the live map, wander the illustrated guide, or step into a scene.
+          </p>
 
           <div
             role="tablist"

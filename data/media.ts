@@ -536,16 +536,12 @@ export function getMedia(id: string): MediaAsset {
   return asset;
 }
 
-/** Hero videos are Ken Burns montages rendered from the photos credited above. */
-export const heroVideos = {
-  beach: {
-    src: "/media/hero/beach-days.mp4",
-    poster: "/media/hero/beach-days-poster.webp",
-    sources: ["sunrise-northeast", "beach-lifeguard-rainbow", "north-wildwood-beach-18th", "dunes-to-ocean", "kite-festival"],
-  },
-  boardwalk: {
-    src: "/media/hero/boardwalk-nights.mp4",
-    poster: "/media/hero/boardwalk-nights-poster.webp",
-    sources: ["carousel-ferris-wheel-night", "macks-neon", "ferris-wheel-night", "wildwoods-sign-night", "pizza-neon"],
-  },
+/**
+ * Hero background video, supplied by the site team (public/1920x1080.mp4),
+ * trimmed before its fade to black, muted and re-encoded for the web.
+ */
+export const heroVideo = {
+  src: "/media/hero/wildwoods-hero-1080.mp4",
+  mobileSrc: "/media/hero/wildwoods-hero-720.mp4",
+  poster: "/media/hero/wildwoods-hero-poster.webp",
 } as const;

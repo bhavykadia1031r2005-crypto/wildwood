@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useId, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowRight, BedDouble, Camera, CornerDownLeft, FileText, Hash, MapPin, Search, X } from "lucide-react";
+import { ArrowRight, BedDouble, Compass, CornerDownLeft, FileText, Hash, MapPin, Search, X } from "lucide-react";
 import { searchSite, suggestedSearches, type SearchEntry, type SearchKind } from "@/data/search";
 import { emit } from "@/lib/events";
 import { useFocusTrap, useScrollLock } from "@/lib/hooks";
@@ -14,7 +14,7 @@ const kindIcon: Record<SearchKind, typeof MapPin> = {
   Page: FileText,
   Place: MapPin,
   Stay: BedDouble,
-  Photo: Camera,
+  Category: Compass,
 };
 
 const ease = [0.16, 1, 0.3, 1] as const;
@@ -40,7 +40,9 @@ function SearchDialog({ onClose }: { onClose: () => void }) {
   const choose = (entry: SearchEntry) => {
     onClose();
     const onHome = window.location.pathname === "/";
-    if (onHome && entry.href.startsWith("/#")) {
+    if (/^https?:/.test(entry.href)) {
+      window.open(entry.href, "_blank", "noopener");
+    } else if (onHome && entry.href.startsWith("/#")) {
       const id = entry.href.slice(2);
       document.getElementById(id)?.scrollIntoView({ block: "start" });
       history.replaceState(null, "", `#${id}`);

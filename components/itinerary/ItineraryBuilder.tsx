@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Baby,
@@ -12,6 +12,7 @@ import {
   IceCreamCone,
   PartyPopper,
   RotateCcw,
+  X,
   ShoppingBag,
   Sparkles,
   TreePalm,
@@ -22,6 +23,7 @@ import {
   Waves,
 } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
+import { MagneticButton } from "@/components/ui/Button";
 import { useReveal } from "@/components/animation/useReveal";
 import {
   budgets,
@@ -41,7 +43,8 @@ import {
   type Itinerary,
   type TripPreferences,
 } from "@/lib/itinerary";
-import { cn, formatList } from "@/lib/utils";
+import { useFocusTrap, useScrollLock } from "@/lib/hooks";
+import { cn, seededRandom } from "@/lib/utils";
 import { ItineraryResults } from "./ItineraryResults";
 
 const styleIcons: Record<TravelStyle, typeof Users> = {
@@ -69,8 +72,6 @@ const groupIcons: Record<TravelGroup, typeof Users> = {
   friends: Users,
 };
 
-const spring = { type: "spring", stiffness: 420, damping: 30 } as const;
-
 export function ItineraryBuilder() {
   const root = useRef<HTMLElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -79,6 +80,11 @@ export function ItineraryBuilder() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [builtFor, setBuiltFor] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const panel = useRef<HTMLDivElement>(null);
+  const close = useCallback(() => setOpen(false), []);
+  useFocusTrap(panel, open, close);
+  useScrollLock(open);
   useReveal(root);
 
   const done = completedSteps(prefs);
@@ -103,7 +109,9 @@ export function ItineraryBuilder() {
       setItinerary(generateItinerary(prefs, nextVariant));
       setBuiltFor(JSON.stringify(prefs));
       setLoading(false);
-      requestAnimationFrame(() => resultsRef.current?.scrollIntoView({ block: "start" }));
+      setOpen(false);
+      // Let the popup animate away before bringing the plan into view.
+      window.setTimeout(() => resultsRef.current?.scrollIntoView({ block: "start" }), 350);
     }, 450);
   };
 
@@ -122,21 +130,18 @@ export function ItineraryBuilder() {
     setBuiltFor(null);
   };
 
-  const summary = useMemo(
-    () => [
-      { label: "Style", value: travelStyles.find((s) => s.id === prefs.style)?.label },
-      { label: "Length", value: tripLengths.find((t) => t.id === prefs.length)?.label },
-      {
-        label: "Into",
-        value: prefs.interests.length
-          ? formatList(prefs.interests.map((i) => interests.find((x) => x.id === i)!.label))
-          : undefined,
-      },
-      { label: "Group", value: travelGroups.find((g) => g.id === prefs.group)?.label },
-      { label: "Budget", value: budgets.find((b) => b.id === prefs.budget)?.note, optional: true },
-    ],
-    [prefs],
-  );
+  const picks = useMemo(() => {
+    const n = prefs.interests.length;
+    return [
+      travelStyles.find((st) => st.id === prefs.style)?.label,
+      tripLengths.find((t) => t.id === prefs.length)?.label,
+      travelGroups.find((g) => g.id === prefs.group)?.label,
+      n ? `${n} ${n === 1 ? "interest" : "interests"}` : undefined,
+      budgets.find((b) => b.id === prefs.budget)?.label,
+    ].filter(Boolean) as string[];
+  }, [prefs]);
+  const picked = picks.length > 0;
+  const summaryLine = picked ? picks.join(" · ") : "Your picks will appear here.";
 
   return (
     <section
@@ -155,291 +160,326 @@ export function ItineraryBuilder() {
       </svg>
 
       <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
-        <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
-          <SectionHeader
-            id="itinerary-title"
-            index="01"
-            eyebrow="Customize your itinerary"
-            title={
-              <>
-                Your Wildwoods. <span className="display-accent text-coral-600">Your way.</span>
-              </>
-            }
-            lede="Build a beach escape that feels like you."
-          />
-          <p data-reveal className="max-w-xs text-sm leading-relaxed text-ink/65 lg:mb-3 lg:text-right">
-            Four quick choices, one tailored plan. Suggestions come from our curated local picks and
-            are built right here in your browser.
+        <SectionHeader
+          id="itinerary-title"
+          titleClassName="whitespace-nowrap text-[clamp(1.25rem,calc((100vw_-_4.5rem)/10.6),7.85rem)]"
+          title={
+            <>
+              Your Wildwoods. <span className="display-accent text-coral-600">Your way.</span>
+            </>
+          }
+        />
+
+        <div className="mt-8 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
+          <p data-reveal className="max-w-xl text-lg leading-relaxed text-ink/75 md:text-xl">
+            Build a beach escape that feels like you. Pick your style, trip length and interests, and
+            we&rsquo;ll map out your days.
           </p>
+          <div data-reveal className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
+            <MagneticButton
+              variant="sun"
+              size="lg"
+              onClick={() => setOpen(true)}
+              aria-haspopup="dialog"
+              aria-expanded={open}
+              icon={<Sparkles className="size-5" aria-hidden="true" />}
+            >
+              Create My Itinerary
+            </MagneticButton>
+            <p className="text-sm text-ink/60">Four quick picks · a day-by-day plan in seconds</p>
+          </div>
         </div>
 
-        <div className="mt-14 grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px] lg:gap-10">
-          <div className="flex flex-col gap-6">
-            <Step number={1} title="What kind of trip?" done={Boolean(prefs.style)}>
-              <div role="radiogroup" aria-label="Travel style" className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
-                {travelStyles.map((s) => {
-                  const Icon = styleIcons[s.id];
-                  const selected = prefs.style === s.id;
-                  return (
-                    <button
-                      key={s.id}
-                      type="button"
-                      role="radio"
-                      aria-checked={selected}
-                      onClick={() => update("style", s.id)}
-                      className={cn(
-                        "group relative flex min-h-36 flex-col items-start justify-between gap-4 overflow-hidden rounded-3xl p-4 text-left transition-[background-color,color,box-shadow] duration-300",
-                        selected
-                          ? "bg-teal-500 text-white shadow-soft"
-                          : "bg-cream text-ink ring-1 ring-inset ring-teal-500/12 hover:ring-teal-500/40",
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "grid size-11 place-items-center rounded-2xl transition-colors",
-                          selected ? "bg-sun-500 text-teal-700" : "bg-white text-ocean-600 group-hover:bg-turquoise-50",
-                        )}
-                      >
-                        <Icon className="size-5" strokeWidth={2.2} aria-hidden="true" />
-                      </span>
-                      <span>
-                        <span className="block font-display text-lg font-bold leading-tight">{s.label}</span>
-                        <span className={cn("mt-1 block text-[0.8rem] leading-snug", selected ? "text-white/75" : "text-ink/60")}>
-                          {s.blurb}
-                        </span>
-                      </span>
-                      <CheckBadge show={selected} />
-                    </button>
-                  );
-                })}
-              </div>
-            </Step>
-
-            <Step number={2} title="How long are you staying?" done={Boolean(prefs.length)}>
-              <div
-                role="radiogroup"
-                aria-label="Trip length"
-                className="grid grid-cols-2 gap-1.5 rounded-[1.75rem] bg-cream p-1.5 ring-1 ring-inset ring-teal-500/10 sm:grid-cols-4"
-              >
-                {tripLengths.map((t) => {
-                  const selected = prefs.length === t.id;
-                  return (
-                    <button
-                      key={t.id}
-                      type="button"
-                      role="radio"
-                      aria-checked={selected}
-                      onClick={() => update("length", t.id)}
-                      className={cn(
-                        "relative rounded-[1.4rem] px-4 py-3.5 text-center transition-colors",
-                        selected ? "text-white" : "text-ink hover:bg-white",
-                      )}
-                    >
-                      {selected && (
-                        <motion.span
-                          layoutId="length-pill"
-                          transition={spring}
-                          className="absolute inset-0 rounded-[1.4rem] bg-teal-500"
-                        />
-                      )}
-                      <span className="relative block font-display text-lg font-bold">{t.label}</span>
-                      <span className={cn("relative block text-xs", selected ? "text-sun-300" : "text-ink/55")}>{t.note}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </Step>
-
-            <Step
-              number={3}
-              title="What are you into?"
-              hint="Pick as many as you like"
-              done={prefs.interests.length > 0}
+        {/* Trip planner popup: one boarding-pass ticket with choices and a tear-off stub. */}
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              key="planner"
+              className="fixed inset-0 z-[70] overflow-y-auto overscroll-contain"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
             >
-              <div className="flex flex-wrap gap-2.5" role="group" aria-label="Interests">
-                {interests.map((i) => {
-                  const Icon = interestIcons[i.id];
-                  const selected = prefs.interests.includes(i.id);
-                  return (
-                    <motion.button
-                      key={i.id}
-                      type="button"
-                      aria-pressed={selected}
-                      onClick={() => toggleInterest(i.id)}
-                      whileTap={{ scale: 0.94 }}
-                      className={cn(
-                        "inline-flex h-12 items-center gap-2 rounded-full pl-3 pr-4 font-semibold transition-colors duration-300",
-                        selected
-                          ? "bg-sun-500 text-teal-700"
-                          : "bg-cream text-ink ring-1 ring-inset ring-teal-500/15 hover:ring-teal-500/45",
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "grid size-7 place-items-center rounded-full",
-                          selected ? "bg-teal-500 text-sun-400" : "bg-white text-ocean-600",
-                        )}
-                      >
-                        <AnimatePresence mode="popLayout" initial={false}>
-                          {selected ? (
-                            <motion.span key="check" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                              <Check className="size-4" strokeWidth={3} aria-hidden="true" />
-                            </motion.span>
-                          ) : (
-                            <motion.span key="icon" initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
-                              <Icon className="size-4" aria-hidden="true" />
-                            </motion.span>
-                          )}
-                        </AnimatePresence>
-                      </span>
-                      {i.label}
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </Step>
-
-            <div className="grid gap-6 md:grid-cols-2">
-              <Step number={4} title="Who's coming?" done={Boolean(prefs.group)}>
-                <div role="radiogroup" aria-label="Travel group" className="grid grid-cols-2 gap-2.5">
-                  {travelGroups.map((g) => {
-                    const Icon = groupIcons[g.id];
-                    const selected = prefs.group === g.id;
-                    return (
-                      <button
-                        key={g.id}
-                        type="button"
-                        role="radio"
-                        aria-checked={selected}
-                        onClick={() => update("group", g.id)}
-                        className={cn(
-                          "flex h-14 items-center gap-3 rounded-2xl px-4 font-semibold transition-colors duration-300",
-                          selected
-                            ? "bg-teal-500 text-white"
-                            : "bg-cream text-ink ring-1 ring-inset ring-teal-500/12 hover:ring-teal-500/40",
-                        )}
-                      >
-                        <Icon className={cn("size-5", selected ? "text-sun-400" : "text-ocean-600")} aria-hidden="true" />
-                        {g.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </Step>
-
-              <Step number={5} title="Budget" hint="Optional" done={Boolean(prefs.budget)} optional>
-                <div role="radiogroup" aria-label="Budget (optional)" className="grid grid-cols-3 gap-2.5">
-                  {budgets.map((b) => {
-                    const selected = prefs.budget === b.id;
-                    return (
-                      <button
-                        key={b.id}
-                        type="button"
-                        role="radio"
-                        aria-checked={selected}
-                        onClick={() => update("budget", selected ? null : b.id)}
-                        className={cn(
-                          "flex flex-col items-center justify-center rounded-2xl px-2 py-2.5 transition-colors duration-300",
-                          selected
-                            ? "bg-orange-500 text-ink"
-                            : "bg-cream text-ink ring-1 ring-inset ring-teal-500/12 hover:ring-teal-500/40",
-                        )}
-                      >
-                        <span className="font-display text-xl font-extrabold">{b.label}</span>
-                        <span className="text-[0.7rem] leading-tight opacity-75">{b.note}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </Step>
-            </div>
-          </div>
-
-          {/* Trip ticket — live summary */}
-          <aside aria-label="Your trip so far" className="lg:sticky lg:top-28 lg:self-start" data-reveal="right">
-            <div className="relative overflow-hidden rounded-[2rem] bg-teal-500 text-white shadow-lift">
-              <div className="relative overflow-hidden px-7 pb-6 pt-7">
-                <div aria-hidden="true" className="absolute -right-7 -top-7 size-24 rounded-full bg-linear-to-b from-sun-500 to-orange-500" />
-                <svg aria-hidden="true" viewBox="0 0 200 40" preserveAspectRatio="none" className="absolute right-0 top-[52px] h-6 w-32 text-turquoise-500">
-                  <path d="M0 20c25-14 45-14 70 0s45 14 70 0 40-14 60-4v24H0z" fill="currentColor" />
-                </svg>
-                <p className="eyebrow relative text-turquoise-300">Admit one · Wildwoods, NJ</p>
-                <div className="relative mt-5 flex items-center gap-4">
-                  <ProgressRing value={done} total={4} />
-                  <div>
-                    <p className="font-display text-2xl font-extrabold leading-tight">
-                      {complete ? "Ready to roll" : "Your trip ticket"}
-                    </p>
-                    <p className="text-sm text-white/70" aria-live="polite">
-                      {done} of 4 steps complete
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Perforation with ticket notches */}
-              <div aria-hidden="true" className="relative">
-                <span className="absolute -left-4 -top-4 size-8 rounded-full bg-cream" />
-                <span className="absolute -right-4 -top-4 size-8 rounded-full bg-cream" />
-                <div className="mx-7 border-t-2 border-dashed border-white/25" />
-              </div>
-
-              <dl className="flex flex-col gap-3 px-7 py-6">
-                {summary.map((row) => (
-                  <div key={row.label} className="flex items-baseline justify-between gap-4">
-                    <dt className="eyebrow shrink-0 text-[0.65rem] text-white/55">{row.label}</dt>
-                    <dd className="min-w-0 text-right font-semibold">
-                      <AnimatePresence mode="wait" initial={false}>
-                        <motion.span
-                          key={row.value ?? "empty"}
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -8 }}
-                          transition={{ duration: 0.25 }}
-                          className={cn("block", !row.value && "text-white/35")}
-                        >
-                          {row.value ?? (row.optional ? "Any" : "—")}
-                        </motion.span>
-                      </AnimatePresence>
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-
-              <div className="px-7 pb-7">
-                <button
-                  type="button"
-                  onClick={() => build()}
-                  disabled={!complete || loading}
-                  aria-describedby={!complete ? "itinerary-help" : undefined}
-                  className={cn(
-                    "group/cta relative flex h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-full font-semibold transition-all duration-300",
-                    complete
-                      ? "bg-sun-500 text-teal-700 hover:bg-sun-300"
-                      : "bg-white/10 text-white/60",
-                  )}
+              <button
+                type="button"
+                tabIndex={-1}
+                aria-label="Close trip planner"
+                onClick={close}
+                className="fixed inset-0 cursor-default bg-teal-950/80 backdrop-blur-sm"
+              />
+              <div className="pointer-events-none relative flex min-h-full items-center justify-center px-3 py-6 sm:px-6 sm:py-10">
+                <motion.div
+                  ref={panel}
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="planner-title"
+                  initial={{ opacity: 0, y: 40, scale: 0.97 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 24, scale: 0.98, transition: { duration: 0.2 } }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  className="on-dark ticket-notched pointer-events-auto relative grid w-full max-w-[1240px] overflow-hidden rounded-[2.25rem] bg-teal-500 text-white shadow-lift lg:grid-cols-[minmax(0,1fr)_340px]"
                 >
-                  <Sparkles className={cn("size-5", loading && "animate-spin")} aria-hidden="true" />
-                  {loading ? "Mapping your days…" : outdated ? "Update My Itinerary" : "Create My Itinerary"}
-                </button>
-                {!complete && (
-                  <p id="itinerary-help" className="mt-3 text-center text-xs text-white/60">
-                    Choose a style, trip length, at least one interest and your group.
-                  </p>
-                )}
-                {done > 0 && (
+                  <div className="px-6 pb-8 pt-8 sm:px-9 sm:pt-9 lg:px-11 lg:pb-11 lg:pt-10">
+                    <p className="eyebrow pr-12 text-turquoise-300 lg:pr-0">Trip planner · Wildwoods, NJ</p>
+                    <h3 id="planner-title" className="mt-2 pr-12 font-display text-2xl font-extrabold leading-tight sm:text-[1.7rem] lg:pr-0">
+                      Tap your picks. Your ticket fills in as you go.
+                    </h3>
+
+                    <div className="mt-8">
+                      <TicketRow labelId="row-style" label="Style" step={1} done={Boolean(prefs.style)}>
+                        <div role="radiogroup" aria-labelledby="row-style" className="flex flex-wrap gap-2">
+                          {travelStyles.map((st) => {
+                            const Icon = styleIcons[st.id];
+                            const selected = prefs.style === st.id;
+                            return (
+                              <motion.button
+                                key={st.id}
+                                type="button"
+                                role="radio"
+                                aria-checked={selected}
+                                title={st.blurb}
+                                onClick={() => update("style", st.id)}
+                                whileTap={{ scale: 0.95 }}
+                                className={chip(selected)}
+                              >
+                                <Icon className="size-4" aria-hidden="true" />
+                                {st.label}
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                        <AnimatePresence mode="wait" initial={false}>
+                          <motion.p
+                            key={prefs.style ?? "none"}
+                            initial={{ opacity: 0, y: 4 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="mt-2.5 text-sm text-white/60"
+                          >
+                            {travelStyles.find((st) => st.id === prefs.style)?.blurb ?? "Pick the mood of your trip."}
+                          </motion.p>
+                        </AnimatePresence>
+                      </TicketRow>
+
+                      <TicketRow labelId="row-length" label="Length" step={2} done={Boolean(prefs.length)}>
+                        <div role="radiogroup" aria-labelledby="row-length" className="flex flex-wrap gap-2">
+                          {tripLengths.map((t) => {
+                            const selected = prefs.length === t.id;
+                            return (
+                              <motion.button
+                                key={t.id}
+                                type="button"
+                                role="radio"
+                                aria-checked={selected}
+                                onClick={() => update("length", t.id)}
+                                whileTap={{ scale: 0.95 }}
+                                className={chip(selected)}
+                              >
+                                {t.label}
+                                <span className={cn("font-medium", selected ? "text-teal-700/70" : "text-white/50")}>{t.note}</span>
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                      </TicketRow>
+
+                      <TicketRow labelId="row-into" label="Into" hint="Pick any" step={3} done={prefs.interests.length > 0}>
+                        <div role="group" aria-labelledby="row-into" className="flex flex-wrap gap-2">
+                          {interests.map((i) => {
+                            const Icon = interestIcons[i.id];
+                            const selected = prefs.interests.includes(i.id);
+                            return (
+                              <motion.button
+                                key={i.id}
+                                type="button"
+                                aria-pressed={selected}
+                                onClick={() => toggleInterest(i.id)}
+                                whileTap={{ scale: 0.95 }}
+                                className={chip(selected)}
+                              >
+                                <AnimatePresence mode="popLayout" initial={false}>
+                                  <motion.span
+                                    key={selected ? "on" : "off"}
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    exit={{ scale: 0 }}
+                                    className="grid place-items-center"
+                                  >
+                                    {selected ? (
+                                      <Check className="size-4" strokeWidth={3} aria-hidden="true" />
+                                    ) : (
+                                      <Icon className="size-4" aria-hidden="true" />
+                                    )}
+                                  </motion.span>
+                                </AnimatePresence>
+                                {i.label}
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                      </TicketRow>
+
+                      <TicketRow labelId="row-group" label="Group" step={4} done={Boolean(prefs.group)}>
+                        <div role="radiogroup" aria-labelledby="row-group" className="flex flex-wrap gap-2">
+                          {travelGroups.map((g) => {
+                            const Icon = groupIcons[g.id];
+                            const selected = prefs.group === g.id;
+                            return (
+                              <motion.button
+                                key={g.id}
+                                type="button"
+                                role="radio"
+                                aria-checked={selected}
+                                onClick={() => update("group", g.id)}
+                                whileTap={{ scale: 0.95 }}
+                                className={chip(selected)}
+                              >
+                                <Icon className="size-4" aria-hidden="true" />
+                                {g.label}
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                      </TicketRow>
+
+                      <TicketRow labelId="row-budget" label="Budget" hint="Optional" done={Boolean(prefs.budget)}>
+                        <div role="radiogroup" aria-labelledby="row-budget" className="flex flex-wrap gap-2">
+                          {budgets.map((b) => {
+                            const selected = prefs.budget === b.id;
+                            return (
+                              <motion.button
+                                key={b.id}
+                                type="button"
+                                role="radio"
+                                aria-checked={selected}
+                                onClick={() => update("budget", selected ? null : b.id)}
+                                whileTap={{ scale: 0.95 }}
+                                className={chip(selected)}
+                              >
+                                <span className="font-display font-extrabold">{b.label}</span>
+                                <span className={cn("font-medium", selected ? "text-teal-700/70" : "text-white/50")}>{b.note}</span>
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                      </TicketRow>
+                    </div>
+                  </div>
+
+                  {/* Tear-off stub */}
+                  <aside aria-label="Your trip ticket" className="relative flex flex-col bg-teal-600 px-6 pb-7 pt-9 sm:px-9 lg:px-8 lg:pt-10">
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-x-8 top-0 border-t-2 border-dashed border-white/25 lg:inset-x-auto lg:inset-y-8 lg:left-0 lg:border-l-2 lg:border-t-0"
+                    />
+                    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+                      <div className="absolute -right-10 -top-10 size-32 rounded-full bg-linear-to-b from-sun-500 to-orange-500" />
+                      <svg viewBox="0 0 200 40" preserveAspectRatio="none" className="absolute right-0 top-[66px] h-6 w-36 text-turquoise-500">
+                        <path d="M0 20c25-14 45-14 70 0s45 14 70 0 40-14 60-4v24H0z" fill="currentColor" />
+                      </svg>
+                    </div>
+
+                    <div className="relative flex flex-1 flex-col">
+                      <p className="eyebrow text-turquoise-300">Admit one</p>
+                      <div className="mt-5 flex items-center gap-4">
+                        <ProgressRing value={done} total={4} />
+                        <div>
+                          <p className="font-display text-2xl font-extrabold leading-tight">
+                            {complete ? "Ready to roll" : "Your trip ticket"}
+                          </p>
+                          <p className="text-sm text-white/70" aria-live="polite">
+                            {done} of 4 steps complete
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-7 rounded-2xl bg-white/6 p-4 ring-1 ring-inset ring-white/10">
+                        <div className="flex items-end justify-between gap-3">
+                          <div>
+                            <p className="eyebrow text-[0.6rem] text-white/50">From</p>
+                            <p className="whitespace-nowrap font-display text-lg font-bold">You</p>
+                          </div>
+                          <svg aria-hidden="true" viewBox="0 0 60 12" preserveAspectRatio="none" className="mb-2 h-3 min-w-6 flex-1 text-sun-400">
+                            <path d="M0 6h52" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3 3" />
+                            <path d="M50 1l7 5-7 5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                          <div className="text-right">
+                            <p className="eyebrow text-[0.6rem] text-white/50">To</p>
+                            <p className="whitespace-nowrap font-display text-lg font-bold text-sun-400">The Wildwoods</p>
+                          </div>
+                        </div>
+                        <AnimatePresence mode="wait" initial={false}>
+                          <motion.p
+                            key={summaryLine}
+                            initial={{ opacity: 0, y: 6 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -6 }}
+                            transition={{ duration: 0.25 }}
+                            className={cn("mt-3 border-t border-white/10 pt-3 text-sm leading-relaxed", picked ? "text-white/85" : "text-white/45")}
+                          >
+                            {summaryLine}
+                          </motion.p>
+                        </AnimatePresence>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => build()}
+                        disabled={!complete || loading}
+                        aria-describedby={!complete ? "itinerary-help" : undefined}
+                        className={cn(
+                          "relative mt-6 flex h-14 w-full items-center justify-center gap-2 overflow-hidden rounded-full font-semibold transition-all duration-300",
+                          complete ? "bg-sun-500 text-teal-700 hover:bg-sun-300" : "bg-white/10 text-white/60",
+                        )}
+                      >
+                        <Sparkles className={cn("size-5", loading && "animate-spin")} aria-hidden="true" />
+                        {loading ? "Mapping your days…" : outdated ? "Update My Itinerary" : "Create My Itinerary"}
+                      </button>
+                      {!complete && (
+                        <p id="itinerary-help" className="mt-3 text-center text-xs text-white/60">
+                          Choose a style, trip length, at least one interest and your group.
+                        </p>
+                      )}
+                      {done > 0 && (
+                        <button
+                          type="button"
+                          onClick={reset}
+                          className="mx-auto mt-3 flex items-center gap-1.5 text-xs font-semibold text-white/70 underline-offset-4 hover:text-white hover:underline"
+                        >
+                          <RotateCcw className="size-3.5" aria-hidden="true" /> Start over
+                        </button>
+                      )}
+
+                      <div aria-hidden="true" className="min-h-7 flex-1" />
+                      <div aria-hidden="true" className="border-t border-dashed border-white/15 pt-5">
+                        <svg viewBox="0 0 240 36" preserveAspectRatio="none" className="h-9 w-full text-white/70">
+                          {BARCODE.map((b) => (
+                            <rect key={b.x} x={b.x} y="0" width={b.w} height="36" fill="currentColor" />
+                          ))}
+                        </svg>
+                        <p className="mt-2 flex justify-between text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-white/45">
+                          <span>WW · NJ</span>
+                          <span>Curated local picks</span>
+                        </p>
+                      </div>
+                    </div>
+                  </aside>
+
                   <button
                     type="button"
-                    onClick={reset}
-                    className="mx-auto mt-3 flex items-center gap-1.5 text-xs font-semibold text-white/70 underline-offset-4 hover:text-white hover:underline"
+                    onClick={close}
+                    aria-label="Close trip planner"
+                    className="absolute right-4 top-4 z-20 grid size-10 place-items-center rounded-full bg-white text-teal-700 shadow-soft transition hover:bg-sun-500"
                   >
-                    <RotateCcw className="size-3.5" aria-hidden="true" /> Start over
+                    <X className="size-5" />
                   </button>
-                )}
+                </motion.div>
               </div>
-            </div>
-          </aside>
-        </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div ref={resultsRef} className="scroll-mt-28">
           <AnimatePresence mode="wait">
@@ -452,7 +492,7 @@ export function ItineraryBuilder() {
                 loading={loading}
                 onShuffle={shuffle}
                 onUpdate={() => build()}
-                onEdit={() => root.current?.scrollIntoView({ block: "start" })}
+                onEdit={() => setOpen(true)}
               />
             )}
           </AnimatePresence>
@@ -462,59 +502,62 @@ export function ItineraryBuilder() {
   );
 }
 
-function Step({
-  number,
-  title,
+const chip = (selected: boolean) =>
+  cn(
+    "inline-flex h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors duration-200",
+    selected
+      ? "bg-sun-500 text-teal-700 shadow-[0_8px_20px_-10px_rgb(255_212_0/0.8)]"
+      : "bg-white/8 text-white/90 ring-1 ring-inset ring-white/15 hover:bg-white/15 hover:text-white",
+  );
+
+/** Deterministic barcode so server and client render the same bars. */
+const BARCODE = (() => {
+  const rand = seededRandom(20260611);
+  const bars: { x: number; w: number }[] = [];
+  for (let x = 0; x < 236; ) {
+    const w = 1 + Math.floor(rand() * 3);
+    bars.push({ x, w });
+    x += w + 1 + Math.floor(rand() * 3);
+  }
+  return bars;
+})();
+
+function TicketRow({
+  labelId,
+  label,
   hint,
+  step,
   done,
-  optional,
   children,
 }: {
-  number: number;
-  title: string;
+  labelId: string;
+  label: string;
   hint?: string;
+  step?: number;
   done: boolean;
-  optional?: boolean;
   children: ReactNode;
 }) {
   return (
-    <fieldset data-reveal className="min-w-0 rounded-[2rem] bg-white p-5 shadow-[0_1px_0_rgb(16_86_101/0.06)] ring-1 ring-teal-500/8 sm:p-7">
-      <legend className="sr-only">{title}</legend>
-      <div className="mb-5 flex items-center gap-3" aria-hidden="true">
+    <div className="grid gap-3 border-t border-white/10 py-5 first:border-t-0 first:pt-0 last:pb-0 md:grid-cols-[150px_minmax(0,1fr)] md:gap-6">
+      <div className="flex items-center gap-2.5 md:items-start md:pt-3">
         <span
+          aria-hidden="true"
           className={cn(
-            "grid size-8 place-items-center rounded-full font-display text-sm font-extrabold transition-colors duration-300",
-            done ? "bg-sun-500 text-teal-700" : "bg-teal-50 text-teal-500",
+            "grid size-6 shrink-0 place-items-center rounded-full text-[0.7rem] font-extrabold transition-colors duration-300",
+            done ? "bg-sun-500 text-teal-700" : "text-white/60 ring-1 ring-inset ring-white/25",
           )}
         >
-          {done ? <Check className="size-4" strokeWidth={3} /> : number}
+          {done ? <Check className="size-3.5" strokeWidth={3.5} /> : (step ?? "+")}
         </span>
-        <span className="font-display text-xl font-bold text-teal-600 sm:text-2xl">{title}</span>
-        {hint && (
-          <span className={cn("ml-auto text-xs font-semibold", optional ? "text-ink/45" : "text-ocean-600")}>{hint}</span>
-        )}
+        <span>
+          <span id={labelId} className="eyebrow block text-[0.7rem] text-turquoise-200">
+            {label}
+          </span>
+          {hint && <span className="mt-0.5 block text-xs text-white/50">{hint}</span>}
+        </span>
       </div>
-      {children}
-    </fieldset>
-  );
-}
-
-function CheckBadge({ show }: { show: boolean }) {
-  return (
-    <AnimatePresence>
-      {show && (
-        <motion.span
-          initial={{ scale: 0, rotate: -40 }}
-          animate={{ scale: 1, rotate: 0 }}
-          exit={{ scale: 0 }}
-          transition={spring}
-          className="absolute right-3 top-3 grid size-6 place-items-center rounded-full bg-sun-500 text-teal-700"
-          aria-hidden="true"
-        >
-          <Check className="size-3.5" strokeWidth={3.5} />
-        </motion.span>
-      )}
-    </AnimatePresence>
+      <div className="min-w-0">{children}</div>
+    </div>
   );
 }
 

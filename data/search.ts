@@ -1,9 +1,9 @@
 import { categoryMeta, pointsOfInterest } from "./attractions";
 import { stays, stayAreas, stayTypeSingular } from "./accommodations";
-import { galleryItems } from "./gallery";
+import { moreToExplore } from "./moreToExplore";
 import type { SiteEvents } from "@/lib/events";
 
-export type SearchKind = "Section" | "Place" | "Stay" | "Photo" | "Page";
+export type SearchKind = "Section" | "Place" | "Stay" | "Category" | "Page";
 
 export type SearchEntry = {
   id: string;
@@ -43,10 +43,10 @@ const sections: SearchEntry[] = [
   {
     id: "s-gallery",
     kind: "Section",
-    label: "Photo spots",
-    description: "The most photogenic places on the island",
+    label: "More to explore",
+    description: "Amusements, beaches, dining, nightlife, golf & more",
     href: "/#things-to-do",
-    keywords: "photos gallery pictures instagram views things to do sunrise sunset",
+    keywords: "things to do activities attractions amusements beaches boardwalk dining events outdoors nightlife spirits history golf",
   },
   {
     id: "p-guide",
@@ -86,14 +86,13 @@ export const searchIndex: SearchEntry[] = [
     keywords: `${s.description} ${s.amenities.join(" ")} ${s.type}`,
     event: { name: "ww:search-stays", detail: { query: s.name } },
   })),
-  ...galleryItems.map<SearchEntry>((g) => ({
-    id: `photo-${g.id}`,
-    kind: "Photo",
-    label: g.title,
-    description: g.location,
-    href: "/#things-to-do",
-    keywords: `${g.tip} ${g.category}`,
-    event: { name: "ww:open-photo", detail: { id: g.id } },
+  ...moreToExplore.map<SearchEntry>((c) => ({
+    id: `category-${c.id}`,
+    kind: "Category",
+    label: c.label,
+    description: "Things to do · opens wildwoodsnj.com",
+    href: c.href,
+    keywords: `things to do ${c.description} ${c.alt}`,
   })),
 ];
 
@@ -103,7 +102,7 @@ export const suggestedSearches = [
   "Doo Wop",
   "Lighthouse",
   "Pet-friendly",
-  "Sunrise",
+  "Golf",
   "Seafood",
   "Kayak",
 ];

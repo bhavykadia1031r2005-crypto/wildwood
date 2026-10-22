@@ -45,8 +45,6 @@ export function StaysSection() {
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeader
             id="stays-title"
-            index="03"
-            eyebrow="Places to stay"
             title={
               <>
                 Stay a little <span className="display-accent text-ocean-500">longer.</span>

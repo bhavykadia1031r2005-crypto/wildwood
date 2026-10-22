@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Figtree, Instrument_Serif } from "next/font/google";
 import { ScrollRefresh } from "@/components/animation/ScrollRefresh";
+import { ChatWidget } from "@/components/chat/ChatWidget";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -92,6 +93,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         {children}
+        <ChatWidget />
         <ScrollRefresh />
       </body>
     </html>

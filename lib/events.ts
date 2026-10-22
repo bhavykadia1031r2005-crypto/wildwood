@@ -7,7 +7,6 @@
 export type SiteEvents = {
   "ww:focus-place": { id: string };
   "ww:search-stays": { query: string };
-  "ww:open-photo": { id: string };
 };
 
 export function emit<K extends keyof SiteEvents>(name: K, detail: SiteEvents[K]) {

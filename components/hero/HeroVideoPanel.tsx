@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useMediaQuery } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
 type ConnectionInfo = { saveData?: boolean };
@@ -15,11 +16,14 @@ type ConnectionInfo = { saveData?: boolean };
  */
 export function HeroVideoPanel({
   src,
+  mobileSrc,
   poster,
   paused,
   className,
 }: {
   src: string;
+  /** Lighter file for small screens, which only show a centre crop anyway. */
+  mobileSrc?: string;
   poster: string;
   paused: boolean;
   className?: string;
@@ -30,6 +34,8 @@ export function HeroVideoPanel({
   const [near, setNear] = useState(false);
   const [onScreen, setOnScreen] = useState(false);
   const [failed, setFailed] = useState(false);
+  const small = useMediaQuery("(max-width: 767px)");
+  const file = small && mobileSrc ? mobileSrc : src;
   const saveData = useSyncExternalStore(
     () => () => {},
     () => Boolean((navigator as Navigator & { connection?: ConnectionInfo }).connection?.saveData),
@@ -64,7 +70,7 @@ export function HeroVideoPanel({
 
   return (
     <div ref={wrap} className={cn("absolute inset-0", className)} aria-hidden="true">
-      <Image src={poster} alt="" fill preload sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
+      <Image src={poster} alt="" fill preload sizes="100vw" className="object-cover" />
       {near && !failed && !saveData && (
         <video
           ref={video}
@@ -72,7 +78,7 @@ export function HeroVideoPanel({
             "absolute inset-0 size-full object-cover transition-opacity duration-1000",
             ready ? "opacity-100" : "opacity-0",
           )}
-          src={src}
+          src={file}
           poster={poster}
           autoPlay={!paused}
           muted

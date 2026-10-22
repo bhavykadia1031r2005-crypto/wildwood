@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { PageShell } from "@/components/layout/PageShell";
-import { allMedia, heroVideos } from "@/data/media";
+import { allMedia } from "@/data/media";
 
 export const metadata: Metadata = {
   title: "Photo Credits",
@@ -22,13 +22,20 @@ export default function CreditsPage() {
     >
       <div className="grid gap-4 text-ink/75 md:grid-cols-2">
         <p className="rounded-3xl bg-white p-6 ring-1 ring-teal-500/8">
-          <strong className="text-teal-600">Hero videos.</strong> The two background videos are slow-motion montages
-          created from the photographs credited here (beach: {heroVideos.beach.sources.length} photos; boardwalk:{" "}
-          {heroVideos.boardwalk.sources.length} photos).
+          <strong className="text-teal-600">Hero video.</strong> The homepage background video was supplied by the
+          Wildwoods tourism team.
         </p>
         <p className="rounded-3xl bg-white p-6 ring-1 ring-teal-500/8">
           <strong className="text-teal-600">Panoramas.</strong> Scenes in the 360° viewer are wide crops of standard
           photographs (credited below), not 360° captures. Map data &copy; OpenStreetMap contributors. Icons by Lucide (ISC).
+        </p>
+        <p className="rounded-3xl bg-white p-6 ring-1 ring-teal-500/8 md:col-span-2">
+          <strong className="text-teal-600">More to explore.</strong> The ten category images in the homepage&rsquo;s
+          &ldquo;More to explore&rdquo; grid come from the official Wildwoods tourism website,{" "}
+          <a href="https://wildwoodsnj.com/" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-ocean-600">
+            wildwoodsnj.com
+          </a>
+          .
         </p>
       </div>
 
