@@ -111,7 +111,7 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
               className="shrink-0 rounded-full"
               onClick={closeMenu}
             >
-              <Logo tone="light" />
+              <Logo tone="light" preload className="h-11 w-auto sm:h-12" />
             </Link>
 
             <ul className="mx-auto hidden items-center gap-0.5 lg:flex">

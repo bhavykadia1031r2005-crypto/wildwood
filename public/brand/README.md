@@ -1,14 +1,12 @@
 # Brand assets
 
-The official Wildwoods logo was not included with this build, so the site
-currently renders a **placeholder mark** (`wildwoods-mark-placeholder.svg`,
-also used as `app/icon.svg`) in the brand palette.
+- `wildwoods-logo.png` — official logo (transparent PNG, 239×100). Use on light backgrounds.
+- `wildwoods-logo-light.png` — generated from the original with the black outlines and
+  lettering ("the", "New Jersey", ™) lifted to white, for the teal navigation, footer and
+  other dark surfaces.
+- `wildwoods-mark.png` — square sun-and-wave "W" cropped from the logo; also used as the
+  favicon (`app/icon.png`).
 
-To use the official artwork:
-
-1. Copy the logo file into this folder, e.g. `public/brand/wildwoods-logo.svg`.
-2. Set `NEXT_PUBLIC_LOGO_SRC=/brand/wildwoods-logo.svg` in `.env.local`
-   (and adjust `logo.width` / `logo.height` in `lib/site.ts` to its aspect ratio).
-3. Replace `app/icon.svg` with a square version of the mark for the favicon.
-4. Re-sample the exact brand colours from the artwork and update the tokens at
-   the top of `app/globals.css` if they differ.
+Paths are configured in `lib/site.ts` (`siteConfig.logo`). If a higher-resolution or
+vector (SVG) version of the logo becomes available, replace these files and regenerate the
+light variant — the current PNG is small, so it is shown no taller than ~48px.

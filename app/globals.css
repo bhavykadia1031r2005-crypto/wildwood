@@ -59,6 +59,19 @@
   --color-coral-600: #d24816;
   --color-coral-700: #a9390f;
 
+  /* Neutral grays with a hint of the brand teal (admin dashboard surfaces & text) */
+  --color-gray-25: #fbfcfc;
+  --color-gray-50: #f5f7f8;
+  --color-gray-100: #edf1f2;
+  --color-gray-200: #e0e6e8;
+  --color-gray-300: #c9d2d5;
+  --color-gray-400: #98a6ab;
+  --color-gray-500: #6a7a80;
+  --color-gray-600: #4e5d63;
+  --color-gray-700: #38454a;
+  --color-gray-800: #232f34;
+  --color-gray-900: #131c20;
+
   /* Warm off-white: a very light tint of sunny yellow */
   --color-cream: #fffaf0;
   --color-cream-200: #fdf1d8;

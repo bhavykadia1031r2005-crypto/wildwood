@@ -56,6 +56,34 @@ instance; use a shared store before high-traffic launch.
 Supporting routes: `/guide` (the QR destination), `/events`, `/credits`,
 `/legal/privacy|terms|accessibility` (placeholders) and a branded 404.
 
+## Admin analytics dashboard (`/admin`) — UI preview
+
+An internal analytics area with nine pages: Overview, Visitors & Traffic,
+Customer Retention, Inquiries & Leads, Service Analytics, Customer Journey,
+Cohort Analysis, Reports and Settings. It has a collapsible sidebar, global
+filters (date range incl. custom, previous-period comparison, service), CSV
+export of each page's main table, a customer profile drawer, and charts built
+with Recharts.
+
+**It is UI only.** Everything runs on a deterministic demo dataset generated in
+the browser (`lib/admin/demoData.ts`, ~5,000 visitors, Sep 2025 – Oct 2026)
+and is labeled "Demo data" on every page. Metrics come from pure aggregation
+functions in `lib/admin/analytics.ts` (no hard-coded numbers), so swapping the
+dataset for real queries later keeps the UI unchanged. Not included yet:
+database/Prisma schema, API routes, the tracking script and authentication —
+**add admin sign-in before deploying `/admin`** (it's `noindex` but otherwise
+open). Settings lists the environment variables a live setup will need.
+
+Definitions used throughout: *new visitor* = first recorded visit in the
+period; *returning visitor* = active in the period, first visit before it;
+*inquiry conversion* = unique visitors with an inquiry ÷ unique visitors. A
+returning visitor (same browser ID) is distinguished from an identified
+customer (someone who submitted their details).
+
+The dashboard reuses the site's brand palette plus a neutral gray scale
+(`--color-gray-*` in `globals.css`); the visitor-facing AI chat button is
+hidden under `/admin`.
+
 ## Configuration
 
 All team-supplied values live in `lib/site.ts`, fed by the environment variables
@@ -64,7 +92,7 @@ guessed:
 
 | Item | Behavior when not configured |
 | --- | --- |
-| Logo (`NEXT_PUBLIC_LOGO_SRC`) | Placeholder sun-and-waves mark (see `public/brand/README.md`) |
+| Logo (`NEXT_PUBLIC_LOGO_SRC`) | Official logo in `public/brand/` (see `public/brand/README.md`) |
 | Site URL / QR target | QR uses the current browser origin + `/guide` and notes when it's a local address |
 | Social profiles | Icons shown disabled with "coming soon" |
 | Contact details | Not rendered |
@@ -109,7 +137,8 @@ CC0, CC BY and CC BY-SA). Credits appear in the lightbox and on `/credits`.
   labeled in the viewer as "not a 360° capture". `PanoramaScene.kind` is
   reserved for real 360° media; true equirectangular rendering would need a
   WebGL viewer (e.g. three.js), loaded only when that tab opens.
-- **Logo**: not supplied with this build. See `public/brand/README.md`.
+- **Logo**: the official Wildwoods logo plus a light variant for dark
+  backgrounds and a square mark/favicon. See `public/brand/README.md`.
 
 ## Animation system
 

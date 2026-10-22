@@ -50,7 +50,7 @@ export function Footer() {
       <Reveal className="mx-auto max-w-[1320px] px-5 pb-10 pt-16 sm:px-8 md:pt-20">
         <div className="grid gap-12 lg:grid-cols-[1.25fr_0.8fr_1fr_0.85fr_1.45fr] lg:gap-10">
           <div data-reveal className="flex flex-col gap-6">
-            <Logo tone="light" />
+            <Logo tone="light" className="h-16 w-auto self-start" />
             <p className="max-w-xs leading-relaxed text-white/75">
               North Wildwood, Wildwood, Wildwood Crest and West Wildwood — one island of free beaches,
               boardwalk thrills and Doo Wop style on the Jersey Shore.
@@ -103,14 +103,7 @@ export function Footer() {
           </address>
         )}
 
-        <p
-          aria-hidden="true"
-          className="display pointer-events-none mt-16 select-none text-center text-[clamp(4rem,19vw,17rem)] leading-[0.8] text-turquoise-500/15"
-        >
-          Wildwoods
-        </p>
-
-        <div className="mt-8 flex flex-col-reverse items-start justify-between gap-6 border-t border-white/15 pt-8 text-sm text-white/65 md:flex-row md:items-center">
+        <div className="mt-14 flex flex-col-reverse items-start justify-between gap-6 border-t border-white/15 pt-8 text-sm text-white/65 md:flex-row md:items-center">
           <p>
             © {siteConfig.buildYear} {siteConfig.name}, {siteConfig.region}. All rights reserved.
           </p>

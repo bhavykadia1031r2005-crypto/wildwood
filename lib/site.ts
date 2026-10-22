@@ -31,14 +31,17 @@ export const siteConfig = {
   guidePath: "/guide",
 
   /**
-   * Official logo artwork. Drop the supplied file into /public/brand and set
-   * `src` (e.g. "/brand/wildwoods-logo.svg"). While `src` is empty the site
-   * renders the built-in placeholder mark in brand colours.
+   * Official logo artwork in /public/brand. `src` is the original (for light
+   * backgrounds); `lightSrc` is a variant with the black outlines and lettering
+   * turned white, for the teal navigation, footer and other dark surfaces.
+   * `mark` is the square sun-and-wave "W" used where space is tight.
    */
   logo: {
-    src: env(process.env.NEXT_PUBLIC_LOGO_SRC),
-    width: 220,
-    height: 64,
+    src: env(process.env.NEXT_PUBLIC_LOGO_SRC) || "/brand/wildwoods-logo.png",
+    lightSrc: env(process.env.NEXT_PUBLIC_LOGO_LIGHT_SRC) || "/brand/wildwoods-logo-light.png",
+    mark: "/brand/wildwoods-mark.png",
+    width: 239,
+    height: 100,
   },
 
   /** Official social profiles. Leave blank until confirmed; blank links render as disabled placeholders. */

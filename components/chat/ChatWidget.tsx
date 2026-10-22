@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUp, RotateCcw, Sparkles, Square, X } from "lucide-react";
 import { LogoMark } from "@/components/brand/Logo";
@@ -165,8 +166,12 @@ export function ChatWidget() {
     field.current?.focus();
   };
 
+  const pathname = usePathname();
   const lastUser = [...messages].reverse().find((m) => m.role === "user");
   const transition = reduced ? { duration: 0 } : { duration: 0.4, ease };
+
+  // The visitor-facing guide doesn't belong in the admin dashboard.
+  if (pathname?.startsWith("/admin")) return null;
 
   return (
     <>
@@ -191,7 +196,9 @@ export function ChatWidget() {
             className="on-light fixed inset-x-3 bottom-24 z-[60] flex h-[min(72svh,600px)] flex-col overflow-hidden rounded-[1.75rem] bg-cream shadow-[0_30px_80px_-20px_rgb(4_23_28/0.55)] ring-1 ring-teal-500/10 sm:inset-x-auto sm:right-6 sm:w-[390px]"
           >
             <header className="flex items-center gap-3 bg-teal-500 px-4 py-3.5 text-white">
-              <LogoMark className="size-9 shrink-0" />
+              <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white p-1">
+                <LogoMark className="size-full" />
+              </span>
               <div className="min-w-0 flex-1">
                 <h2 id={titleId} className="font-display text-base font-bold leading-tight">
                   Wildwoods Guide
