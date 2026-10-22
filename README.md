@@ -46,6 +46,10 @@ npm run build && npm start   # production
 (`components/chat/ChatWidget.tsx`) that streams answers from Claude Opus 5.5
 via `app/api/chat/route.ts`. The assistant's knowledge is generated from the
 same `data/` files the site renders (`lib/assistant/systemPrompt.ts`) and is
+
+
+
+
 sent as a cached system prompt; it is told never to invent dates, hours or
 prices and never to present the sample stays as real. Requests run at `low`
 effort with Anthropic's automatic refusal fallback (`fallbacks: "default"`).
