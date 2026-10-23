@@ -57,7 +57,26 @@ Set `ANTHROPIC_API_KEY` on the server to switch it on; until then the panel
 says the guide isn't connected. The built-in rate limit is per server
 instance; use a shared store before high-traffic launch.
 
-Supporting routes: `/guide` (the QR destination), `/events`, `/credits`,
+**Wishlist (every page):** visitors can save items with a heart button on:
+
+- stay cards and the stay details dialog
+- map place cards
+- "More to explore" cards
+- the hero events calendar and `/events`
+
+The heart in the nav shows a count and opens a drawer of saved items grouped
+by type. Each item jumps to where it lives on the site, e.g. it opens the
+stay's details or focuses the place on the map. `/wishlist` shows the full
+list, with filters, "Clear all" with undo, and a share link
+(`/wishlist?items=stay:…,place:…`). When someone opens a shared link, they
+can save all the items to their own wishlist.
+
+Saved items live in the visitor's `localStorage` (`lib/wishlist.ts`), synced
+across tabs. No account is needed and nothing is sent to a server. Items are
+looked up in the current content, so edits from the demo editor show up.
+Items removed from the site are shown as "no longer listed".
+
+Supporting routes: `/guide` (the QR destination), `/events`, `/wishlist`, `/credits`,
 `/legal/privacy|terms|accessibility` (placeholders) and a branded 404.
 
 ## Admin analytics dashboard (`/admin`) — UI preview
@@ -70,7 +89,7 @@ export of each page's main table, a customer profile drawer, and charts built
 with Recharts.
 
 **It is UI only.** Everything runs on a deterministic demo dataset generated in
-the browser (`lib/admin/demoData.ts`, ~5,000 visitors, Sep 2025 – Oct 2026)
+the browser (`lib/admin/demoData.ts`, ~15,000 visitors with steady growth, Sep 2025 – Oct 2026)
 and is labeled "Demo data" on every page. Metrics come from pure aggregation
 functions in `lib/admin/analytics.ts` (no hard-coded numbers), so swapping the
 dataset for real queries later keeps the UI unchanged. Not included yet:

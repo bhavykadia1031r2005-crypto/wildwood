@@ -44,6 +44,16 @@ export function StaysSection() {
     [],
   );
 
+  // Opened from the wishlist.
+  useEffect(
+    () =>
+      listen("ww:open-stay", ({ id }) => {
+        const stay = ranked.find((s) => s.id === id);
+        if (stay) setDetails(stay);
+      }),
+    [ranked],
+  );
+
   const clearAll = () => setFilters(defaultFilters);
 
   return (

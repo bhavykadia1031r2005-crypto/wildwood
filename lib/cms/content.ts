@@ -141,6 +141,7 @@ export const defaultContent: SiteContent = {
           link("Explore the Map", "/#explore"),
           link("Travel Information", "/guide#getting-here"),
           link("Visitor Guide", "/guide"),
+          link("Your Wishlist", "/wishlist"),
         ],
       },
       {

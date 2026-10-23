@@ -24,7 +24,7 @@ export const C = {
   total: "#105665",
   newVisitors: "#12B9D0",
   returning: "#F47B20",
-  inquiries: "#F15A24",
+  inquiries: "#13865A",
   previous: "#98a6ab",
   grid: "#edf1f2",
   axis: "#6a7a80",

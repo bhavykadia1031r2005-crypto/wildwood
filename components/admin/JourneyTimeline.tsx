@@ -15,7 +15,7 @@ const ICONS: Record<TimelineEvent["type"], LucideIcon> = {
 };
 
 const TONE: Partial<Record<TimelineEvent["type"], string>> = {
-  inquiry_submit: "bg-coral-500 text-white",
+  inquiry_submit: "bg-green-600 text-white",
   lead_qualified: "bg-turquoise-500 text-white",
   lead_converted: "bg-teal-500 text-white",
   lead_lost: "bg-gray-400 text-white",

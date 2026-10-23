@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useId, useMemo, useRef, useState } from "react";
+import { useId, useMemo, useRef, useState, type ComponentProps } from "react";
 import { Check, ImageUp, LoaderCircle, Search } from "lucide-react";
-import { imageLibrary, isUploadedImage, resolveImage } from "@/lib/cms/render";
+import { imageLibrary } from "@/lib/cms/render";
+import { Thumb as BaseThumb } from "@/components/ui/Thumb";
 import { cn } from "@/lib/utils";
 
 const MAX_EDGE = 1280;
@@ -133,15 +134,7 @@ export function ImagePicker({
   );
 }
 
-/** Small preview tile for a content image reference. */
-export function Thumb({ refValue, className, alt = "" }: { refValue?: string; className?: string; alt?: string }) {
-  const img = resolveImage(refValue, alt);
-  return (
-    <span className={cn("relative block shrink-0 overflow-hidden rounded-lg bg-gray-100", className)}>
-      {img && <Image src={img.src} alt={alt} fill sizes="120px" className="object-cover" />}
-      {isUploadedImage(refValue) && (
-        <span className="absolute bottom-0.5 left-0.5 rounded bg-gray-900/70 px-1 text-[0.55rem] font-semibold uppercase tracking-wide text-white">Upload</span>
-      )}
-    </span>
-  );
+/** Thumbnail that marks demo uploads, for the editor's lists. */
+export function Thumb(props: Omit<ComponentProps<typeof BaseThumb>, "uploadBadge">) {
+  return <BaseThumb {...props} uploadBadge />;
 }

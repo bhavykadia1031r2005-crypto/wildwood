@@ -7,6 +7,8 @@
 export type SiteEvents = {
   "ww:focus-place": { id: string };
   "ww:search-stays": { query: string };
+  "ww:open-stay": { id: string };
+  "ww:wishlist-saved": { title: string };
 };
 
 export function emit<K extends keyof SiteEvents>(name: K, detail: SiteEvents[K]) {

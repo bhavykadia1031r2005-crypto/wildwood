@@ -5,6 +5,7 @@ import { forwardRef } from "react";
 import { motion } from "motion/react";
 import { ArrowUpRight, MapPin, Star, Users } from "lucide-react";
 import { amenityLabels, stayAreas, stayTypeSingular, type Stay } from "@/data/accommodations";
+import { SaveButton } from "@/components/wishlist/SaveButton";
 import { resolveImage } from "@/lib/cms/render";
 import { amenityIcons } from "./StayFilters";
 
@@ -34,12 +35,11 @@ export const StayCard = forwardRef<HTMLElement, { stay: Stay; onDetails: (s: Sta
           />
         )}
         <div aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-teal-900/45 via-transparent to-transparent" />
-        <span className="absolute left-3 top-3 rounded-full bg-white px-3 py-1 text-xs font-bold text-teal-600">
-          {stayTypeSingular[stay.type]}
-        </span>
-        <span className="absolute right-3 top-3 rounded-full bg-sun-500 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-teal-700">
-          Sample
-        </span>
+        <div className="absolute left-3 top-3 flex items-center gap-1.5">
+          <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-teal-600">{stayTypeSingular[stay.type]}</span>
+          <span className="rounded-full bg-sun-500 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-teal-700">Sample</span>
+        </div>
+        <SaveButton type="stay" id={stay.id} title={stay.name} className="absolute right-3 top-3" />
         <span className="absolute bottom-3 left-3 rounded-full bg-teal-900/60 px-2.5 py-1 text-[0.65rem] font-semibold text-white/90 backdrop-blur-sm">
           Area photo
         </span>

@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Info, MapPin, Star, Users, X } from "lucide-react";
 import { amenityLabels, stayAreas, stayTypeSingular, type Stay } from "@/data/accommodations";
+import { SaveButton } from "@/components/wishlist/SaveButton";
 import { resolveImage } from "@/lib/cms/render";
 import { useFocusTrap, useScrollLock } from "@/lib/hooks";
 import { amenityIcons } from "./StayFilters";
@@ -50,7 +51,10 @@ function Dialog({ stay, onClose }: { stay: Stay; onClose: () => void }) {
           </button>
         </div>
         <div className="p-6 sm:p-8">
-          <p className="eyebrow text-ocean-600">{stayTypeSingular[stay.type]} · {stayAreas[stay.area]}</p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <p className="eyebrow text-ocean-600">{stayTypeSingular[stay.type]} · {stayAreas[stay.area]}</p>
+            <SaveButton type="stay" id={stay.id} title={stay.name} variant="pill" />
+          </div>
           <h3 id="stay-dialog-title" className="display mt-2 text-5xl text-teal-500">
             {stay.name}
           </h3>

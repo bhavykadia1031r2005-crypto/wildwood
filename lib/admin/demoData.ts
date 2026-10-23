@@ -123,7 +123,6 @@ const MESSAGES: Record<ServiceId, string[]> = {
   groups: ["We're planning a 60-person team trip and need lodging plus activities.", "Interested in the Convention Center for a two-day regional meeting.", "Organizing a youth tournament — what venues are available?"],
 };
 
-const SEASON = [0.35, 0.36, 0.48, 0.62, 0.92, 1.42, 1.72, 1.62, 0.95, 0.62, 0.42, 0.46];
 
 function pick<T>(r: () => number, items: T[], weights: number[]): T {
   const total = weights.reduce((a, b) => a + b, 0);
@@ -148,76 +147,150 @@ type Draft = {
   visits: { day: number; source: SourceId; services: ServiceId[]; inquiry?: ServiceId }[];
 };
 
-function statusFor(r: () => number, age: number): { status: LeadStatus; statusAfterDays: number; responseHours?: number } {
-  if (age < 5) {
-    return r() < 0.7 ? { status: "pending", statusAfterDays: 0 } : { status: "contacted", statusAfterDays: 0, responseHours: 1 + r() * 20 };
-  }
+function statusFor(r: () => number, age: number, qualified: boolean): { status: LeadStatus; statusAfterDays: number; responseHours?: number } {
   const responseHours = Math.round((r() < 0.6 ? 1 + r() * 10 : 10 + r() * 60) * 10) / 10;
+  if (qualified) {
+    // The team qualifies good leads quickly; older qualified leads have often converted.
+    const status: LeadStatus = age >= 14 && r() < 0.45 ? "converted" : "qualified";
+    return { status, statusAfterDays: Math.min(age, 1 + Math.floor(r() * (status === "converted" ? 25 : 4))), responseHours: Math.min(responseHours, 24) };
+  }
+  if (age < 3) {
+    return r() < 0.6 ? { status: "pending", statusAfterDays: 0 } : { status: "contacted", statusAfterDays: 0, responseHours: 1 + Math.round(r() * 190) / 10 };
+  }
   if (age < 14) {
-    const status = pick(r, ["contacted", "qualified", "pending"] as LeadStatus[], [55, 35, 10]);
+    const status = pick(r, ["contacted", "pending"] as LeadStatus[], [75, 25]);
     return { status, statusAfterDays: Math.min(age, 1 + Math.floor(r() * 5)), responseHours: status === "pending" ? undefined : responseHours };
   }
-  const status = pick(r, ["contacted", "qualified", "converted", "lost"] as LeadStatus[], [14, 30, 24, 32]);
+  const status = pick(r, ["contacted", "lost"] as LeadStatus[], [40, 60]);
   return { status, statusAfterDays: Math.min(age, 2 + Math.floor(r() * 25)), responseHours };
 }
 
-function build(): DemoDataset {
-  const r = seededRandom(20251022);
+/**
+ * Evenly spread values in [0, 1) for consecutive indexes (additive recurrence
+ * on irrational numbers). Used instead of plain random draws for the choices
+ * that drive headline metrics, so short date ranges don't swing by chance.
+ */
+const IRRATIONALS = [0.6180339887, 0.4142135624, 0.7320508076, 0.2360679775, 0.6457513111, 0.3166247904, 0.6055512755];
+const spread = (i: number, dim: number) => ((i + 1) * IRRATIONALS[dim]) % 1;
+
+/** Steady growth through the year (no seasonal dip): daily traffic rises about 3.2×. */
+const GROWTH = Math.log(3.2) / DEMO_DAYS;
+const SERVICE_W_TOTAL = SERVICE_W.reduce((x, y) => x + y, 0);
+/** Related services a visit sometimes browses as well. */
+const RELATED: Record<ServiceId, [ServiceId, ServiceId]> = {
+  stays: ["beaches", "dining"],
+  events: ["dining", "stays"],
+  amusements: ["dining", "beaches"],
+  beaches: ["stays", "amusements"],
+  dining: ["events", "amusements"],
+  groups: ["stays", "events"],
+};
+const progress = (day: number) => day / DEMO_END_DAY;
+
+/**
+ * Fixed inputs so the demo is identical on server and client. The seed and the
+ * starting points of the per-service running totals were chosen so this demo
+ * year reads as steady growth in every preset date range.
+ */
+const SEED = 20251022;
+type Phases = Record<ServiceId, number>;
+const even = (v: number): Phases => ({ stays: v, events: v, amusements: v, beaches: v, dining: v, groups: v });
+const PHASES = { newVisitors: even(0.5), returns: even(0.5), inquiries: even(0.5), qualified: even(0.5) };
+
+function build(seed = SEED, phases = PHASES): DemoDataset {
+  const { newVisitors: newPhase, returns: returnPhase, inquiries: inquiryPhase, qualified: qualifyPhase } = phases;
+  const r = seededRandom(seed);
   const drafts: Draft[] = [];
   let vCount = 0;
 
-  // Organic visitors, shaped by beach-town seasonality and a gentle growth trend.
+  // Organic traffic, day by day and per service: a smooth quota of new visitors (busier weekends)
+  // and of return visits, which go to an earlier visitor of that service after a realistic gap
+  // (days, weeks, months or most of a year). Some visits also browse a related service.
+  const pools = Object.fromEntries(SERVICE_IDS.map((sv) => [sv, [] as Draft[]])) as Record<ServiceId, Draft[]>;
+  const lastDay = new Map<Draft, number>();
+  const newQuota = { ...newPhase };
+  const returnQuota = { ...returnPhase };
+  const seq = Object.fromEntries(SERVICE_IDS.map((sv) => [sv, 0])) as Record<ServiceId, number>;
+  const servicesFor = (sv: ServiceId, n: number) => {
+    const out: ServiceId[] = [sv];
+    if (spread(n, 5) < 0.32) out.push(RELATED[sv][spread(n, 6) < 0.5 ? 0 : 1]);
+    return out;
+  };
   for (let day = 0; day < DEMO_DAYS; day++) {
     const d = dayToDate(day);
     const weekend = d.getUTCDay() === 0 || d.getUTCDay() === 6 ? 1.25 : 1;
-    const trend = 0.9 + (day / DEMO_DAYS) * 0.25;
-    const expected = 13.5 * SEASON[d.getUTCMonth()] * weekend * trend;
-    const count = Math.max(0, Math.round(expected * (0.75 + r() * 0.5)));
-    for (let k = 0; k < count; k++) {
-      const id = `v${(++vCount).toString(36).padStart(4, "0")}`;
-      const consent = r() < 0.9;
-      const primary = pick(r, SERVICE_IDS, SERVICE_W);
-      const visits: Draft["visits"] = [{ day, source: pick(r, SOURCE_IDS, FIRST_TOUCH_W), services: [] }];
-      if (consent && r() < 0.47) {
-        let last = day;
-        let more = 1;
-        while (r() < 0.52 && more < 12) more++;
-        for (let n = 0; n < more; n++) {
-          const kind = r();
-          const gap = kind < 0.45 ? 1 + Math.floor(r() * 14) : kind < 0.75 ? 15 + Math.floor(r() * 75) : kind < 0.93 ? 91 + Math.floor(r() * 150) : 241 + Math.floor(r() * 160);
-          last += gap;
-          if (last > DEMO_END_DAY) break;
-          visits.push({ day: last, source: pick(r, SOURCE_IDS, RETURN_TOUCH_W), services: [] });
-        }
+    const expected = 19 * Math.exp(GROWTH * day) * weekend;
+    SERVICE_IDS.forEach((sv, si) => {
+      newQuota[sv] += (expected * SERVICE_W[si]) / SERVICE_W_TOTAL;
+      for (; newQuota[sv] >= 1; newQuota[sv]--) {
+        const i = vCount;
+        const id = `v${(++vCount).toString(36).padStart(4, "0")}`;
+        const consent = spread(i, 0) < 0.9;
+        const dr: Draft = {
+          visitor: { id, firstDay: day, consent, sessionIds: [] },
+          primary: sv,
+          visits: [{ day, source: pick(r, SOURCE_IDS, FIRST_TOUCH_W), services: servicesFor(sv, seq[sv]++) }],
+        };
+        drafts.push(dr);
+        lastDay.set(dr, day);
+        if (consent) pools[sv].push(dr); // only consented browsers can be recognised when they return
       }
-      for (const v of visits) {
-        if (r() < 0.14) continue; // homepage-only visit
-        const n = r() < 0.6 ? 1 : r() < 0.7 ? 2 : 3;
-        const set = new Set<ServiceId>();
-        if (r() < 0.65) set.add(primary);
-        while (set.size < n) set.add(pick(r, SERVICE_IDS, SERVICE_W));
-        v.services = [...set];
-      }
-      drafts.push({ visitor: { id, firstDay: day, consent, sessionIds: [] }, primary, visits });
-    }
-  }
 
-  // Inquiries: more likely on later visits and for planning-heavy services.
-  for (const dr of drafts) {
-    const seen = new Map<ServiceId, number>();
-    dr.visits.forEach((v, i) => {
-      if (!v.services.length) return;
-      const base = i === 0 ? 0.024 : i === 1 ? 0.075 : 0.11;
-      // Later visits sometimes turn into an inquiry about a different service.
-      const others = v.services.filter((sv) => sv !== dr.primary);
-      const service = i > 0 && others.length && r() < 0.45 ? others[0] : v.services.includes(dr.primary) ? dr.primary : v.services[0];
-      if (r() < base * INQUIRY_AFFINITY[service]) {
-        const prev = seen.get(service);
-        if (prev !== undefined && v.day - prev < 45) return;
-        v.inquiry = service;
-        seen.set(service, v.day);
+      // Return visits grow with the audience, and engagement improves over the year.
+      returnQuota[sv] += (expected * SERVICE_W[si] * (0.34 + 0.14 * progress(day))) / SERVICE_W_TOTAL;
+      const pool = pools[sv];
+      while (returnQuota[sv] >= 1 && pool.length) {
+        const n = seq[sv]++;
+        const kind = spread(n, 3);
+        const g = spread(n, 4);
+        const gap = kind < 0.45 ? 1 + Math.floor(g * 14) : kind < 0.75 ? 15 + Math.floor(g * 75) : kind < 0.93 ? 91 + Math.floor(g * 150) : 241 + Math.floor(g * 160);
+        const target = Math.max(0, day - gap);
+        // Latest visitor who first came by the target day and hasn't been back since.
+        let lo = 0;
+        let hi = pool.length - 1;
+        while (lo < hi) {
+          const mid = (lo + hi + 1) >> 1;
+          if (pool[mid].visitor.firstDay <= target) lo = mid;
+          else hi = mid - 1;
+        }
+        let found: Draft | null = null;
+        for (let j = lo; j >= 0 && j > lo - 400; j--) {
+          const cand = pool[j];
+          if (lastDay.get(cand)! <= target && cand.visits.length < 12) {
+            found = cand;
+            break;
+          }
+        }
+        if (!found) break; // not enough history yet; the quota carries over
+        found.visits.push({ day, source: pick(r, SOURCE_IDS, RETURN_TOUCH_W), services: servicesFor(sv, n) });
+        lastDay.set(found, day);
+        returnQuota[sv]--;
       }
     });
+  }
+
+  // Inquiries, in date order: more likely on later visits and for planning-heavy services, and
+  // gradually more likely over the year. A running total per service turns those odds into
+  // inquiries evenly instead of in random clumps.
+  const odds = { ...inquiryPhase };
+  const lastInquiry = new Map<Draft, Map<ServiceId, number>>();
+  const chronological = drafts.flatMap((dr) => dr.visits.map((_, vi) => ({ dr, vi }))).sort((x, y) => x.dr.visits[x.vi].day - y.dr.visits[y.vi].day);
+  for (const { dr, vi } of chronological) {
+    const v = dr.visits[vi];
+    if (!v.services.length) continue;
+    const base = vi === 0 ? 0.02 : vi === 1 ? 0.055 : 0.075;
+    // Later visits sometimes turn into an inquiry about a different service.
+    const others = v.services.filter((sv) => sv !== dr.primary);
+    const service = vi > 0 && others.length && r() < 0.45 ? others[0] : v.services.includes(dr.primary) ? dr.primary : v.services[0];
+    odds[service] += base * INQUIRY_AFFINITY[service] * (0.7 + 0.8 * progress(v.day));
+    if (odds[service] < 1) continue;
+    const seen = lastInquiry.get(dr) ?? new Map<ServiceId, number>();
+    const prev = seen.get(service);
+    if (prev !== undefined && v.day - prev < 45) continue;
+    odds[service] -= 1;
+    v.inquiry = service;
+    seen.set(service, v.day);
+    lastInquiry.set(dr, seen);
   }
 
   // Scripted journeys that illustrate key scenarios (also fictional).
@@ -302,8 +375,6 @@ function build(): DemoDataset {
           customers.push(customer);
           v.customerId = customer.id;
         }
-        const age = DEMO_END_DAY - visit.day;
-        const st = statusFor(r, age);
         const inquiry: Inquiry = {
           id: `INQ-${(1000 + ++iCount).toString()}`,
           visitorId: v.id,
@@ -311,11 +382,10 @@ function build(): DemoDataset {
           sessionId: id,
           day: visit.day,
           service: visit.inquiry,
-          status: st.status,
-          qualified: st.status === "qualified" || st.status === "converted",
+          status: "pending", // set below
+          qualified: false,
           rep: REPS[Math.floor(r() * REPS.length)],
-          responseHours: st.responseHours,
-          statusAfterDays: st.statusAfterDays,
+          statusAfterDays: 0,
           message: MESSAGES[visit.inquiry][Math.floor(r() * 3)],
         };
         inquiries.push(inquiry);
@@ -324,6 +394,17 @@ function build(): DemoDataset {
       sessions.push(session);
       v.sessionIds.push(id);
     });
+  }
+
+  // Lead outcomes, in date order: the share of qualified leads improves over the year, spread
+  // evenly per service with the same running-total approach as inquiries.
+  const qualifyOdds = { ...qualifyPhase };
+  for (const inq of [...inquiries].sort((x, y) => x.day - y.day)) {
+    qualifyOdds[inq.service] += 0.42 + 0.2 * progress(inq.day);
+    const qualified = qualifyOdds[inq.service] >= 1;
+    if (qualified) qualifyOdds[inq.service] -= 1;
+    const st = statusFor(r, DEMO_END_DAY - inq.day, qualified);
+    Object.assign(inq, { status: st.status, qualified, responseHours: st.responseHours, statusAfterDays: st.statusAfterDays });
   }
 
   // Scripted outcome overrides so the example journeys tell a clear story.

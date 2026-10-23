@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import { Bed, Bird, ExternalLink, FerrisWheel, ShoppingBag, Umbrella, Users, UtensilsCrossed, X } from "lucide-react";
 import { areas, categoryMeta, type PoiCategory, type PointOfInterest } from "@/data/attractions";
+import { SaveButton } from "@/components/wishlist/SaveButton";
 import { resolveImage } from "@/lib/cms/render";
 import { googleMapsLink } from "@/lib/utils";
 
@@ -58,7 +59,9 @@ export function PlaceCard({ place, onClose }: { place: PointOfInterest; onClose:
         <X className="size-4" />
       </button>
       <div className="p-5">
-        <p className="eyebrow text-[0.65rem] text-ocean-600">{placeAreaName(place)}</p>
+        <p className="eyebrow text-[0.65rem] text-ocean-600">
+          {placeAreaName(place)} <span className="text-ink/40">· approximate location</span>
+        </p>
         <h3 className="mt-1.5 font-display text-xl font-bold leading-tight text-teal-600">{place.name}</h3>
         <p className="mt-2 text-sm leading-relaxed text-ink/70">{place.blurb}</p>
         <div className="mt-4 flex items-center justify-between gap-3">
@@ -71,7 +74,7 @@ export function PlaceCard({ place, onClose }: { place: PointOfInterest; onClose:
             Directions <ExternalLink className="size-3.5" aria-hidden="true" />
             <span className="sr-only">(opens Google Maps in a new tab)</span>
           </a>
-          <span className="text-[0.7rem] text-ink/45">Approximate location</span>
+          <SaveButton type="place" id={place.id} title={place.name} variant="pill" size="sm" />
         </div>
       </div>
     </motion.article>

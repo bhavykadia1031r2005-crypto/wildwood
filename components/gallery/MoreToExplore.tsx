@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useReveal } from "@/components/animation/useReveal";
+import { SaveButton } from "@/components/wishlist/SaveButton";
 import { defaultContent } from "@/lib/cms/content";
 import { Accent, fittedTitleClass, resolveImage } from "@/lib/cms/render";
 import { useContent } from "@/lib/cms/store";
@@ -42,7 +43,7 @@ export function MoreToExplore() {
             const img = resolveImage(c.image, c.alt);
             const external = /^https?:\/\//.test(c.href);
             return (
-              <li key={c.id} data-reveal className="flex">
+              <li key={c.id} data-reveal className="relative flex">
                 <a
                   href={c.href}
                   target={external ? "_blank" : undefined}
@@ -79,6 +80,7 @@ export function MoreToExplore() {
                   </span>
                   {external && <span className="sr-only"> (opens {hostOf(c.href)} in a new tab)</span>}
                 </a>
+                <SaveButton type="activity" id={c.id} title={c.label} className="absolute left-2.5 top-2.5 z-10" />
               </li>
             );
           })}

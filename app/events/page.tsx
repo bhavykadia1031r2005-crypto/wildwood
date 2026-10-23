@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { CalendarDays } from "lucide-react";
 import { Notice, PageShell } from "@/components/layout/PageShell";
+import { SaveButton } from "@/components/wishlist/SaveButton";
 import { signatureEvents as events } from "@/data/events";
 import { getMedia } from "@/data/media";
 
@@ -29,7 +30,7 @@ export default function EventsPage() {
         {events.map((e, i) => {
           const img = getMedia(e.imageId);
           return (
-            <li key={e.title} className="grid overflow-hidden rounded-[2rem] bg-white ring-1 ring-teal-500/8 md:grid-cols-[320px_1fr]">
+            <li key={e.id} id={e.id} className="grid scroll-mt-28 overflow-hidden rounded-[2rem] bg-white ring-1 ring-teal-500/8 md:grid-cols-[320px_1fr]">
               <div className="relative aspect-[16/10] md:aspect-auto">
                 <Image src={img.src} alt={img.alt} fill sizes="(min-width: 768px) 320px, 100vw" className="object-cover" />
               </div>
@@ -42,6 +43,7 @@ export default function EventsPage() {
                   {e.title}
                 </h2>
                 <p className="mt-3 max-w-xl leading-relaxed text-ink/70">{e.text}</p>
+                <SaveButton type="event" id={e.id} title={e.title} variant="pill" className="mt-5 self-start" />
               </div>
             </li>
           );

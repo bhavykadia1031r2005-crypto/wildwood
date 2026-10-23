@@ -59,6 +59,13 @@
   --color-coral-600: #d24816;
   --color-coral-700: #a9390f;
 
+  /* Green for analytics change indicators and inquiry charts (admin). */
+  --color-green-50: #eaf8f1;
+  --color-green-100: #ccefdd;
+  --color-green-500: #1ba672;
+  --color-green-600: #13865a;
+  --color-green-700: #0f6b48;
+
   /* Neutral grays with a hint of the brand teal (admin dashboard surfaces & text) */
   --color-gray-25: #fbfcfc;
   --color-gray-50: #f5f7f8;

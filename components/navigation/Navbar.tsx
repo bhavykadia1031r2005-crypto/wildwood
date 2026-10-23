@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import { Search } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { MagneticButton } from "@/components/ui/Button";
+import { WishlistNav } from "@/components/wishlist/WishlistNav";
 import { useNavigation } from "@/lib/cms/navigation";
 import { useActiveSection, useReducedMotion } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
   const { links, primaryCta, secondaryCta, sectionIds, version } = useNavigation();
   const active = useActiveSection(sectionIds, version);
   const reduced = useReducedMotion();
@@ -66,7 +68,7 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   const closeSearch = useCallback(() => setSearchOpen(false), []);
-  const tucked = hidden && !menuOpen && !searchOpen;
+  const tucked = hidden && !menuOpen && !searchOpen && !wishlistOpen;
   const solid = scrolled || menuOpen;
 
   return (
@@ -153,6 +155,7 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
               >
                 <Search className="size-[1.15rem]" strokeWidth={2.4} />
               </button>
+              <WishlistNav onOpenChange={setWishlistOpen} />
               <MagneticButton
                 href={primaryCta.href}
                 variant="sun"

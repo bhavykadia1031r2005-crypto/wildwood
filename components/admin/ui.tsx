@@ -87,7 +87,7 @@ const statusTone: Record<LeadStatus, keyof typeof badgeTones> = {
   contacted: "ocean",
   qualified: "turquoise",
   converted: "teal",
-  lost: "coral",
+  lost: "neutral",
 };
 
 export function StatusBadge({ status }: { status: LeadStatus }) {
@@ -101,7 +101,8 @@ export function StatusBadge({ status }: { status: LeadStatus }) {
 
 /* ---------- Change indicator ---------- */
 
-export function Delta({ value, invert = false, unavailable, points = false }: { value: number | null; invert?: boolean; unavailable?: string; points?: boolean }) {
+/** Every change is shown in green; the arrow and sign carry the direction. */
+export function Delta({ value, unavailable, points = false }: { value: number | null; unavailable?: string; points?: boolean }) {
   if (value === null) {
     return (
       <span className="inline-flex items-center gap-0.5 text-[0.75rem] font-medium text-gray-400" title={unavailable ?? "No comparable previous period"}>
@@ -109,14 +110,13 @@ export function Delta({ value, invert = false, unavailable, points = false }: { 
       </span>
     );
   }
-  const good = invert ? value < 0 : value > 0;
   const flat = Math.abs(value) < 0.0005;
   const Icon = value > 0 ? ArrowUpRight : ArrowDownRight;
   return (
     <span
       className={cn(
         "inline-flex items-center gap-0.5 rounded-md px-1 py-0.5 text-[0.75rem] font-semibold tabular-nums",
-        flat ? "text-gray-500" : good ? "bg-turquoise-50 text-teal-600" : "bg-coral-100/50 text-coral-700",
+        flat ? "text-gray-500" : "bg-green-50 text-green-700",
       )}
     >
       {!flat && <Icon className="size-3" aria-hidden="true" />}

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import { ArrowRight, CalendarDays, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
+import { SaveButton } from "@/components/wishlist/SaveButton";
 import { useContent } from "@/lib/cms/store";
 import { useReducedMotion } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
@@ -142,11 +143,14 @@ export function EventCalendar({ paused }: { paused: boolean }) {
               style={{ transformOrigin: "50% 0%" }}
               className="absolute inset-0 grid grid-cols-[58px_minmax(0,1fr)] gap-3 bg-white p-3.5 [backface-visibility:hidden]"
             >
-              <div className="self-start overflow-hidden rounded-xl text-center shadow-[0_6px_16px_-10px_rgb(16_86_101/0.45)] ring-1 ring-teal-500/12">
-                <p className="bg-sun-500 py-0.5 text-[0.5rem] font-bold uppercase tracking-[0.08em] text-teal-700">{event.band}</p>
-                <p className={cn("display py-2 text-teal-600", event.month.length > 3 ? "text-[0.95rem]" : "text-[1.7rem]")}>
-                  {event.month}
-                </p>
+              <div className="flex flex-col items-center gap-1.5 self-start">
+                <div className="w-full overflow-hidden rounded-xl text-center shadow-[0_6px_16px_-10px_rgb(16_86_101/0.45)] ring-1 ring-teal-500/12">
+                  <p className="bg-sun-500 py-0.5 text-[0.5rem] font-bold uppercase tracking-[0.08em] text-teal-700">{event.band}</p>
+                  <p className={cn("display py-2 text-teal-600", event.month.length > 3 ? "text-[0.95rem]" : "text-[1.7rem]")}>
+                    {event.month}
+                  </p>
+                </div>
+                <SaveButton type="event" id={event.id} title={event.title} variant="mini" />
               </div>
               <div className="min-w-0">
                 <h3 className="font-display text-sm font-bold leading-tight text-teal-600">{event.title}</h3>
