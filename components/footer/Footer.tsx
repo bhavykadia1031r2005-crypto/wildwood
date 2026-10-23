@@ -1,44 +1,23 @@
+"use client";
+
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { ArrowUp, Mail, MapPin, Phone } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { Reveal } from "@/components/animation/Reveal";
+import { useCms } from "@/lib/cms/store";
 import { legalHref, siteConfig } from "@/lib/site";
 import { NewsletterForm } from "./NewsletterForm";
 import { SocialIcons } from "./SocialIcons";
 
-const columns = [
-  {
-    title: "Explore",
-    links: [
-      { label: "Beaches", href: "/#explore" },
-      { label: "Boardwalk", href: "/#things-to-do" },
-      { label: "Attractions", href: "/#explore" },
-      { label: "Events", href: "/events" },
-      { label: "Dining", href: "/#explore" },
-    ],
-  },
-  {
-    title: "Plan Your Visit",
-    links: [
-      { label: "Places to Stay", href: "/#stays" },
-      { label: "Customize Your Itinerary", href: "/#itinerary" },
-      { label: "Explore the Map", href: "/#explore" },
-      { label: "Travel Information", href: "/guide#getting-here" },
-      { label: "Visitor Guide", href: "/guide" },
-    ],
-  },
-  {
-    title: "Discover",
-    links: [
-      { label: "Photo Gallery", href: "/#things-to-do" },
-      { label: "Area Guides", href: "/#explore" },
-      { label: "Family Activities", href: "/#itinerary" },
-      { label: "Local Experiences", href: "/#things-to-do" },
-    ],
-  },
-];
-
+/** Remounts when the footer copy changes so the scroll reveal starts from fresh elements. */
 export function Footer() {
+  const { rev } = useCms();
+  return <FooterContent key={rev.footer ?? 0} />;
+}
+
+function FooterContent() {
+  const { blurb, newsletterTitle, columns } = useCms().content.footer;
   const { contact } = siteConfig;
   const hasContact = Boolean(contact.email || contact.phone || contact.address);
 
@@ -48,22 +27,25 @@ export function Footer() {
         Site footer
       </h2>
       <Reveal className="mx-auto max-w-[1320px] px-5 pb-10 pt-16 sm:px-8 md:pt-20">
-        <div className="grid gap-12 lg:grid-cols-[1.25fr_0.8fr_1fr_0.85fr_1.45fr] lg:gap-10">
+        <div
+          className="grid gap-12 lg:grid-cols-[var(--footer-cols)] lg:gap-10"
+          style={{
+            "--footer-cols":
+              columns.length === 3 ? "1.25fr 0.8fr 1fr 0.85fr 1.45fr" : `1.25fr repeat(${columns.length}, minmax(0, 0.9fr)) 1.45fr`,
+          } as CSSProperties}
+        >
           <div data-reveal className="flex flex-col gap-6">
             <Logo tone="light" className="h-16 w-auto self-start" />
-            <p className="max-w-xs leading-relaxed text-white/75">
-              North Wildwood, Wildwood, Wildwood Crest and West Wildwood — one island of free beaches,
-              boardwalk thrills and Doo Wop style on the Jersey Shore.
-            </p>
+            {blurb && <p className="max-w-xs leading-relaxed text-white/75">{blurb}</p>}
             <SocialIcons />
           </div>
 
           {columns.map((col) => (
-            <nav key={col.title} data-reveal aria-label={col.title}>
+            <nav key={col.id} data-reveal aria-label={col.title}>
               <p className="eyebrow mb-5 text-[0.68rem] text-turquoise-300">{col.title}</p>
               <ul className="flex flex-col gap-3">
                 {col.links.map((l) => (
-                  <li key={l.label}>
+                  <li key={l.id}>
                     <Link href={l.href} className="group inline-flex items-center text-white/85 transition-colors hover:text-sun-400">
                       <span className="h-px w-0 bg-sun-400 transition-all duration-300 group-hover:mr-2 group-hover:w-3" aria-hidden="true" />
                       {l.label}
@@ -76,9 +58,7 @@ export function Footer() {
 
           <div data-reveal>
             <p className="eyebrow mb-5 text-[0.68rem] text-turquoise-300">Newsletter</p>
-            <p className="mb-5 font-display text-2xl font-bold leading-tight">
-              Sunny news, straight to your inbox.
-            </p>
+            <p className="mb-5 font-display text-2xl font-bold leading-tight">{newsletterTitle}</p>
             <NewsletterForm />
           </div>
         </div>

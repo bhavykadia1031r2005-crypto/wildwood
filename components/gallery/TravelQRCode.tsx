@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Check, Copy, ScanLine, Smartphone } from "lucide-react";
+import { Accent } from "@/lib/cms/render";
+import { useContent } from "@/lib/cms/store";
 import { siteConfig } from "@/lib/site";
 import { useOrigin } from "@/lib/hooks";
 
@@ -16,6 +18,7 @@ function useQrTarget() {
 
 export function TravelQRCode() {
   const target = useQrTarget();
+  const copyText = useContent("pocketGuide");
   const [copied, setCopied] = useState(false);
   const isLocal = target ? /\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)/.test(target) : false;
 
@@ -46,15 +49,12 @@ export function TravelQRCode() {
       <div className="relative grid items-center gap-10 px-6 py-12 sm:px-10 md:grid-cols-[minmax(0,1fr)_auto] md:px-14 md:py-16">
         <div className="max-w-xl">
           <p className="eyebrow flex items-center gap-2 text-sun-400">
-            <Smartphone className="size-4" aria-hidden="true" /> Take Wildwoods with you
+            <Smartphone className="size-4" aria-hidden="true" /> {copyText.eyebrow}
           </p>
           <h3 id="qr-title" className="display mt-4 text-[clamp(2.6rem,6vw,5rem)]">
-            Your pocket <span className="display-accent text-sun-400">guide</span> to the island.
+            <Accent text={copyText.title} className="text-sun-400" />
           </h3>
-          <p className="mt-5 text-lg leading-relaxed text-white/85">
-            Scan the code to open our mobile visitor guide — areas, beach essentials and the best photo
-            spots, ready on your phone. No app, no sign-up.
-          </p>
+          {copyText.text && <p className="mt-5 text-lg leading-relaxed text-white/85">{copyText.text}</p>}
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             {target ? (

@@ -5,14 +5,14 @@ import { forwardRef } from "react";
 import { motion } from "motion/react";
 import { ArrowUpRight, MapPin, Star, Users } from "lucide-react";
 import { amenityLabels, stayAreas, stayTypeSingular, type Stay } from "@/data/accommodations";
-import { getMedia } from "@/data/media";
+import { resolveImage } from "@/lib/cms/render";
 import { amenityIcons } from "./StayFilters";
 
 export const StayCard = forwardRef<HTMLElement, { stay: Stay; onDetails: (s: Stay) => void }>(function StayCard(
   { stay, onDetails },
   ref,
 ) {
-  const img = getMedia(stay.imageId);
+  const img = resolveImage(stay.imageId, stay.name);
   return (
     <motion.article
       ref={ref}
@@ -23,14 +23,16 @@ export const StayCard = forwardRef<HTMLElement, { stay: Stay; onDetails: (s: Sta
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="group flex flex-col overflow-hidden rounded-[2rem] bg-white ring-1 ring-teal-500/8 transition-shadow duration-500 hover:shadow-lift"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
-        <Image
-          src={img.src}
-          alt={img.alt}
-          fill
-          sizes="(min-width: 1280px) 22vw, (min-width: 640px) 45vw, 100vw"
-          className="object-cover transition-transform duration-[900ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.07]"
-        />
+      <div className="relative aspect-[4/3] overflow-hidden bg-teal-100">
+        {img && (
+          <Image
+            src={img.src}
+            alt={img.alt}
+            fill
+            sizes="(min-width: 1280px) 22vw, (min-width: 640px) 45vw, 100vw"
+            className="object-cover transition-transform duration-[900ms] ease-[var(--ease-out-expo)] group-hover:scale-[1.07]"
+          />
+        )}
         <div aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-teal-900/45 via-transparent to-transparent" />
         <span className="absolute left-3 top-3 rounded-full bg-white px-3 py-1 text-xs font-bold text-teal-600">
           {stayTypeSingular[stay.type]}

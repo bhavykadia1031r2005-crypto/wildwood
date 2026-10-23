@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
 import { ArrowRight, CalendarDays, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
-import { signatureEvents } from "@/data/events";
+import { useContent } from "@/lib/cms/store";
 import { useReducedMotion } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
@@ -27,9 +27,10 @@ export function EventCalendar({ paused }: { paused: boolean }) {
   const [dir, setDir] = useState(1);
   const [hold, setHold] = useState(false);
   const reduced = useReducedMotion();
-  const auto = !paused && !hold && !reduced;
+  const signatureEvents = useContent("events");
   const count = signatureEvents.length;
-  const event = signatureEvents[index];
+  const auto = !paused && !hold && !reduced && count > 1;
+  const event = signatureEvents[index % count];
 
   useEffect(() => {
     if (!auto) return;

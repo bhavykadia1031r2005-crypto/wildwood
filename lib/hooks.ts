@@ -89,13 +89,17 @@ export function useReducedMotion() {
   return useMediaQuery("(prefers-reduced-motion: reduce)");
 }
 
-/** Returns the id of the section currently crossing the upper part of the viewport. */
-export function useActiveSection(ids: string[]) {
+/**
+ * Returns the id of the section currently crossing the upper part of the viewport.
+ * Bump `version` when the sections themselves are re-rendered so they're observed again.
+ */
+export function useActiveSection(ids: string[], version: string | number = 0) {
   const [active, setActive] = useState<string | null>(null);
-  const key = ids.join("|");
+  const key = `${version}#${ids.join("|")}`;
 
   useEffect(() => {
     const els = key
+      .slice(key.indexOf("#") + 1)
       .split("|")
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => Boolean(el));

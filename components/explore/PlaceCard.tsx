@@ -4,7 +4,7 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import { Bed, Bird, ExternalLink, FerrisWheel, ShoppingBag, Umbrella, Users, UtensilsCrossed, X } from "lucide-react";
 import { areas, categoryMeta, type PoiCategory, type PointOfInterest } from "@/data/attractions";
-import { getMedia } from "@/data/media";
+import { resolveImage } from "@/lib/cms/render";
 import { googleMapsLink } from "@/lib/utils";
 
 export const categoryIcons: Record<PoiCategory, typeof Umbrella> = {
@@ -25,7 +25,7 @@ export function placeAreaName(p: PointOfInterest) {
 export function PlaceCard({ place, onClose }: { place: PointOfInterest; onClose: () => void }) {
   const meta = categoryMeta[place.category];
   const Icon = categoryIcons[place.category];
-  const img = place.imageId ? getMedia(place.imageId) : null;
+  const img = resolveImage(place.imageId, place.name);
 
   return (
     <motion.article

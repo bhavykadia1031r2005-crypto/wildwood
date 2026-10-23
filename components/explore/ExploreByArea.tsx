@@ -10,11 +10,13 @@ import { useReveal } from "@/components/animation/useReveal";
 import {
   areas,
   categoryMeta,
-  pointsOfInterest,
   type AreaId,
   type PoiCategory,
 } from "@/data/attractions";
 import { getMedia } from "@/data/media";
+import { defaultContent } from "@/lib/cms/content";
+import { Accent, fittedTitleClass } from "@/lib/cms/render";
+import { useContent } from "@/lib/cms/store";
 import { listen } from "@/lib/events";
 import { cn } from "@/lib/utils";
 import { IllustratedMap } from "./IllustratedMap";
@@ -72,6 +74,8 @@ export function ExploreByArea() {
   const [selectedArea, setSelectedArea] = useState<AreaId>("wildwood");
   const [mapActivated, setMapActivated] = useState(false);
   useReveal(root);
+  const copy = useContent("explore");
+  const pointsOfInterest = useContent("places");
 
   // Defer loading Leaflet until the section approaches the viewport.
   useEffect(() => {
@@ -109,7 +113,7 @@ export function ExploreByArea() {
           (categories.length === 0 || categories.includes(p.category)) &&
           (!areaFilter || p.area === areaFilter),
       ),
-    [categories, areaFilter],
+    [categories, areaFilter, pointsOfInterest],
   );
 
   const place = pointsOfInterest.find((p) => p.id === selectedPlace) ?? null;
@@ -144,17 +148,17 @@ export function ExploreByArea() {
         <SectionHeader
           id="explore-title"
           tone="light"
-          titleClassName="whitespace-nowrap text-[clamp(1.25rem,calc((100vw_-_4.5rem)/10.5),7.4rem)]"
-          title={
-            <>
-              Find your <span className="display-accent text-sun-400">kind of</span> Wildwoods.
-            </>
-          }
+          titleClassName={fittedTitleClass(
+            copy.title,
+            defaultContent.explore.title,
+            "whitespace-nowrap text-[clamp(1.25rem,calc((100vw_-_4.5rem)/10.5),7.4rem)]",
+          )}
+          title={<Accent text={copy.title} className="text-sun-400" />}
         />
 
         <div className="mt-8 flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
           <p data-reveal className="max-w-xl text-lg leading-relaxed text-teal-50/85 md:text-xl">
-            Four shore towns share one barrier island. Browse the live map, wander the illustrated guide, or step into a scene.
+            {copy.intro}
           </p>
 
           <div

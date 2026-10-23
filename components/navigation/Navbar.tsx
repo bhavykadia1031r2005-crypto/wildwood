@@ -6,13 +6,11 @@ import { motion } from "motion/react";
 import { Search } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { MagneticButton } from "@/components/ui/Button";
-import { navCtas, primaryNav } from "@/lib/site";
+import { useNavigation } from "@/lib/cms/navigation";
 import { useActiveSection, useReducedMotion } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 import { MobileMenu } from "./MobileMenu";
 import { SearchOverlay } from "./SearchOverlay";
-
-const sectionIds = primaryNav.map((n) => n.section).filter(Boolean) as string[];
 
 /**
  * Floating capsule navigation with wave-lip ends (see `.nav-shape`).
@@ -24,7 +22,8 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const active = useActiveSection(sectionIds);
+  const { links, primaryCta, secondaryCta, sectionIds, version } = useNavigation();
+  const active = useActiveSection(sectionIds, version);
   const reduced = useReducedMotion();
   const menuButton = useRef<HTMLButtonElement>(null);
 
@@ -115,10 +114,10 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
             </Link>
 
             <ul className="mx-auto hidden items-center gap-0.5 lg:flex">
-              {primaryNav.map((item) => {
-                const isActive = item.section === active;
+              {links.map((item) => {
+                const isActive = item.section !== null && item.section === active;
                 return (
-                  <li key={item.label}>
+                  <li key={item.id}>
                     <Link
                       href={item.href}
                       aria-current={isActive ? "location" : undefined}
@@ -155,22 +154,22 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
                 <Search className="size-[1.15rem]" strokeWidth={2.4} />
               </button>
               <MagneticButton
-                href={navCtas.primary.href}
+                href={primaryCta.href}
                 variant="sun"
                 size="sm"
                 wrapperClassName="hidden sm:inline-flex"
                 className="h-11 px-5"
               >
-                {navCtas.primary.label}
+                {primaryCta.label}
               </MagneticButton>
               <MagneticButton
-                href={navCtas.secondary.href}
+                href={secondaryCta.href}
                 variant="outline-light"
                 size="sm"
                 wrapperClassName="hidden xl:inline-flex"
                 className="h-11 px-5"
               >
-                {navCtas.secondary.label}
+                {secondaryCta.label}
               </MagneticButton>
               <button
                 ref={menuButton}

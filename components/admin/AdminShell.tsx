@@ -23,12 +23,14 @@ import {
   X,
   type LucideIcon,
   Inbox,
+  PencilRuler,
 } from "lucide-react";
 import { Logo, LogoMark } from "@/components/brand/Logo";
 import { DEMO_END_DAY, SERVICES, dateToDay } from "@/lib/admin/demoData";
 import { fmtDay, isoDay } from "@/lib/admin/format";
 import { useFocusTrap, useScrollLock } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
+import { CONTENT_PAGES } from "./content/nav";
 import { DashboardProvider, RANGE_OPTIONS, useDashboard, type RangeKey } from "./DashboardProvider";
 import { Button, Popover, Select, Switch } from "./ui";
 
@@ -45,6 +47,16 @@ export const ADMIN_NAV: NavItem[] = [
   { href: "/admin/reports", label: "Reports", title: "Reports", icon: FileText },
   { href: "/admin/settings", label: "Settings", title: "Settings", icon: Settings },
 ];
+
+const CONTENT_ROOT = "/admin/content";
+
+const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
+  { label: "Analytics", items: ADMIN_NAV.filter((n) => n.href !== "/admin/settings") },
+  { label: "Website", items: [{ href: CONTENT_ROOT, label: "Homepage editor", title: "Homepage editor", icon: PencilRuler }] },
+  { label: "System", items: ADMIN_NAV.filter((n) => n.href === "/admin/settings") },
+];
+
+const isActive = (href: string, pathname: string) => (href === CONTENT_ROOT ? pathname.startsWith(CONTENT_ROOT) : pathname === href);
 
 const NOTIFICATIONS = [
   { title: "3 new inquiries today", detail: "2 for Groups & Conventions, 1 for Places to Stay", time: "Demo · 1h ago" },
@@ -65,7 +77,11 @@ function Shell({ children }: { children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const closeMobile = useCallback(() => setMobileOpen(false), []);
+  const editing = pathname.startsWith(CONTENT_ROOT);
+  const contentPage = CONTENT_PAGES.find((p) => p.href === pathname);
   const current = ADMIN_NAV.find((n) => n.href === pathname) ?? ADMIN_NAV[0];
+  const title = editing ? (contentPage?.title ?? "Homepage editor") : current.title;
+  const crumbs = editing ? ["Homepage editor", ...(contentPage && contentPage.href !== CONTENT_ROOT ? [contentPage.label] : [])] : [current.label];
 
   return (
     <div className="on-light min-h-dvh bg-gray-50 font-sans text-gray-900 antialiased">
@@ -91,7 +107,7 @@ function Shell({ children }: { children: ReactNode }) {
       <MobileNav open={mobileOpen} onClose={closeMobile} pathname={pathname} />
 
       <div className={cn("transition-[padding] duration-300", collapsed ? "lg:pl-[72px]" : "lg:pl-64")}>
-        <Header title={current.title} crumb={current.label} onMenu={() => setMobileOpen(true)} />
+        <Header title={title} crumbs={crumbs} editing={editing} onMenu={() => setMobileOpen(true)} />
         <main id="main" className="mx-auto max-w-[1440px] px-4 pb-16 pt-5 sm:px-6 lg:px-8">
           {children}
         </main>
@@ -117,10 +133,16 @@ function SidebarContent({ collapsed, pathname, onNavigate }: { collapsed: boolea
         )}
       </div>
       <nav aria-label="Dashboard" className="flex-1 overflow-y-auto px-3 py-4">
-        {!collapsed && <p className="px-2 pb-2 text-[0.68rem] font-semibold uppercase tracking-wider text-gray-400">Analytics</p>}
-        <ul className="flex flex-col gap-0.5">
-          {ADMIN_NAV.map((item) => {
-            const active = pathname === item.href;
+        {NAV_GROUPS.map((group, gi) => (
+        <div key={group.label} className={cn(gi > 0 && "mt-5")}>
+        {collapsed ? (
+          gi > 0 && <hr className="mx-2 mb-3 border-gray-100" />
+        ) : (
+          <p className="px-2 pb-2 text-[0.68rem] font-semibold uppercase tracking-wider text-gray-400">{group.label}</p>
+        )}
+        <ul className="flex flex-col gap-0.5" aria-label={group.label}>
+          {group.items.map((item) => {
+            const active = isActive(item.href, pathname);
             return (
               <li key={item.href}>
                 <Link
@@ -142,6 +164,8 @@ function SidebarContent({ collapsed, pathname, onNavigate }: { collapsed: boolea
             );
           })}
         </ul>
+        </div>
+        ))}
       </nav>
       <div className={cn("border-t border-gray-100 p-3", collapsed && "flex justify-center")}>
         <div className={cn("flex items-center gap-2.5 rounded-lg", !collapsed && "px-2 py-1.5")}>
@@ -198,7 +222,7 @@ function MobileNav({ open, onClose, pathname }: { open: boolean; onClose: () => 
   );
 }
 
-function Header({ title, crumb, onMenu }: { title: string; crumb: string; onMenu: () => void }) {
+function Header({ title, crumbs, editing, onMenu }: { title: string; crumbs: string[]; editing: boolean; onMenu: () => void }) {
   const { rangeKey, setRangeKey, range, setCustomRange, compare, setCompare, service, setService, runExport, canExport, prev } = useDashboard();
 
   return (
@@ -214,15 +238,24 @@ function Header({ title, crumb, onMenu }: { title: string; crumb: string; onMenu
                 <li>
                   <Link href="/admin" className="hover:text-gray-800">Admin</Link>
                 </li>
-                <li aria-hidden="true">/</li>
-                <li aria-current="page" className="truncate text-gray-700">{crumb}</li>
+                {crumbs.map((c, i) => (
+                  <li key={c} className="contents">
+                    <span aria-hidden="true">/</span>
+                    <span aria-current={i === crumbs.length - 1 ? "page" : undefined} className={cn("truncate", i === crumbs.length - 1 ? "text-gray-700" : "text-gray-500")}>
+                      {c}
+                    </span>
+                  </li>
+                ))}
               </ol>
             </nav>
             <h1 className="truncate text-lg font-semibold tracking-tight text-gray-900 sm:text-xl">{title}</h1>
           </div>
-          <span className="hidden items-center gap-1.5 rounded-md bg-sun-50 px-2 py-1 text-[0.72rem] font-semibold text-[#7a6400] ring-1 ring-inset ring-sun-200 md:inline-flex" title="UI preview with generated demo data — not connected to live analytics">
+          <span
+            className="hidden items-center gap-1.5 rounded-md bg-sun-50 px-2 py-1 text-[0.72rem] font-semibold text-[#7a6400] ring-1 ring-inset ring-sun-200 md:inline-flex"
+            title={editing ? "Edits are saved in this browser only — nothing is published" : "UI preview with generated demo data — not connected to live analytics"}
+          >
             <span className="size-1.5 rounded-full bg-sun-500" aria-hidden="true" />
-            Demo data
+            {editing ? "Demo editor" : "Demo data"}
           </span>
           <Popover
             label="Notifications"
@@ -275,6 +308,7 @@ function Header({ title, crumb, onMenu }: { title: string; crumb: string; onMenu
           </Popover>
         </div>
 
+        {!editing && (
         <div className="flex flex-wrap items-center gap-2">
           <Select<RangeKey>
             label="Date range"
@@ -301,6 +335,7 @@ function Header({ title, crumb, onMenu }: { title: string; crumb: string; onMenu
             <Download className="size-4" aria-hidden="true" /> Export CSV
           </Button>
         </div>
+        )}
       </div>
     </header>
   );

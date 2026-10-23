@@ -2,7 +2,6 @@ import {
   amenityLabels,
   priceBounds,
   stayAreas,
-  stays,
   stayTypes,
   type Amenity,
   type Stay,
@@ -48,7 +47,7 @@ export const ratingOptions = [
   { value: 4.5, label: "4.5+" },
 ];
 
-export function applyFilters(f: StayFilters): Stay[] {
+export function applyFilters(f: StayFilters, stays: Stay[]): Stay[] {
   const q = f.query.trim().toLowerCase();
   const result = stays.filter((s) => {
     if (q) {

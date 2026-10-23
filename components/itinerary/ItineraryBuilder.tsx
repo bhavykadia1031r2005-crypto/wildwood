@@ -43,6 +43,9 @@ import {
   type Itinerary,
   type TripPreferences,
 } from "@/lib/itinerary";
+import { defaultContent } from "@/lib/cms/content";
+import { Accent, fittedTitleClass } from "@/lib/cms/render";
+import { useContent } from "@/lib/cms/store";
 import { useFocusTrap, useScrollLock } from "@/lib/hooks";
 import { cn, seededRandom } from "@/lib/utils";
 import { ItineraryResults } from "./ItineraryResults";
@@ -86,6 +89,7 @@ export function ItineraryBuilder() {
   useFocusTrap(panel, open, close);
   useScrollLock(open);
   useReveal(root);
+  const copy = useContent("itinerary");
 
   const done = completedSteps(prefs);
   const complete = isComplete(prefs);
@@ -162,18 +166,17 @@ export function ItineraryBuilder() {
       <div className="mx-auto max-w-[1320px] px-5 sm:px-8">
         <SectionHeader
           id="itinerary-title"
-          titleClassName="whitespace-nowrap text-[clamp(1.25rem,calc((100vw_-_4.5rem)/10.6),7.85rem)]"
-          title={
-            <>
-              Your Wildwoods. <span className="display-accent text-coral-600">Your way.</span>
-            </>
-          }
+          titleClassName={fittedTitleClass(
+            copy.title,
+            defaultContent.itinerary.title,
+            "whitespace-nowrap text-[clamp(1.25rem,calc((100vw_-_4.5rem)/10.6),7.85rem)]",
+          )}
+          title={<Accent text={copy.title} className="text-coral-600" />}
         />
 
         <div className="mt-8 flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
           <p data-reveal className="max-w-xl text-lg leading-relaxed text-ink/75 md:text-xl">
-            Build a beach escape that feels like you. Pick your style, trip length and interests, and
-            we&rsquo;ll map out your days.
+            {copy.intro}
           </p>
           <div data-reveal className="flex shrink-0 flex-col items-start gap-3 lg:items-end">
             <MagneticButton
@@ -184,9 +187,9 @@ export function ItineraryBuilder() {
               aria-expanded={open}
               icon={<Sparkles className="size-5" aria-hidden="true" />}
             >
-              Create My Itinerary
+              {copy.buttonLabel || "Create My Itinerary"}
             </MagneticButton>
-            <p className="text-sm text-ink/60">Four quick picks · a day-by-day plan in seconds</p>
+            {copy.note && <p className="text-sm text-ink/60">{copy.note}</p>}
           </div>
         </div>
 

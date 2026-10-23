@@ -6,6 +6,9 @@ import { ArrowUpDown, ChevronDown, Info, Search, SlidersHorizontal, X } from "lu
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useReveal } from "@/components/animation/useReveal";
 import type { Stay } from "@/data/accommodations";
+import { defaultContent } from "@/lib/cms/content";
+import { Accent, fittedTitleClass } from "@/lib/cms/render";
+import { useContent } from "@/lib/cms/store";
 import { listen } from "@/lib/events";
 import { useFocusTrap, useScrollLock } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
@@ -23,8 +26,12 @@ export function StaysSection() {
   const [drawer, setDrawer] = useState(false);
   const [details, setDetails] = useState<Stay | null>(null);
   useReveal(root);
+  const copy = useContent("staysCopy");
+  const list = useContent("stays");
+  // List order in the editor is the "Recommended" order.
+  const ranked = useMemo(() => list.map((s, i) => ({ ...s, rank: i + 1 })), [list]);
 
-  const results = useMemo(() => applyFilters(filters), [filters]);
+  const results = useMemo(() => applyFilters(filters, ranked), [filters, ranked]);
   const chips = activeChips(filters);
   const shown = showAll ? results : results.slice(0, INITIAL);
 
@@ -45,17 +52,16 @@ export function StaysSection() {
         <div className="flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
           <SectionHeader
             id="stays-title"
-            title={
-              <>
-                Stay a little <span className="display-accent text-ocean-500">longer.</span>
-              </>
-            }
-            lede="From neon-lit Doo Wop motels to bayside homes and shady campgrounds — find the right base for your days on the island."
+            titleClassName={fittedTitleClass(copy.title, defaultContent.staysCopy.title, "max-w-[16ch] text-[clamp(3rem,8.4vw,7.75rem)]")}
+            title={<Accent text={copy.title} className="text-ocean-500" />}
+            lede={copy.intro || undefined}
           />
-          <p data-reveal className="flex max-w-sm gap-3 rounded-3xl bg-sun-50 p-4 text-sm leading-relaxed text-teal-700 ring-1 ring-sun-300">
-            <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-            Sample listings: names, prices and ratings are illustrative until a booking partner feed is connected.
-          </p>
+          {copy.notice && (
+            <p data-reveal className="flex max-w-sm gap-3 rounded-3xl bg-sun-50 p-4 text-sm leading-relaxed text-teal-700 ring-1 ring-sun-300">
+              <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              {copy.notice}
+            </p>
+          )}
         </div>
 
         <div className="mt-14 grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:gap-10">

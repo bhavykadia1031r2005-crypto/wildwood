@@ -5,7 +5,7 @@ import { useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Info, MapPin, Star, Users, X } from "lucide-react";
 import { amenityLabels, stayAreas, stayTypeSingular, type Stay } from "@/data/accommodations";
-import { getMedia } from "@/data/media";
+import { resolveImage } from "@/lib/cms/render";
 import { useFocusTrap, useScrollLock } from "@/lib/hooks";
 import { amenityIcons } from "./StayFilters";
 
@@ -17,7 +17,7 @@ function Dialog({ stay, onClose }: { stay: Stay; onClose: () => void }) {
   const panel = useRef<HTMLDivElement>(null);
   useFocusTrap(panel, true, onClose);
   useScrollLock(true);
-  const img = getMedia(stay.imageId);
+  const img = resolveImage(stay.imageId, stay.name);
 
   return (
     <motion.div
@@ -38,8 +38,8 @@ function Dialog({ stay, onClose }: { stay: Stay; onClose: () => void }) {
         exit={{ y: 40, opacity: 0, transition: { duration: 0.2 } }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="relative aspect-[16/8]">
-          <Image src={img.src} alt={img.alt} fill sizes="672px" className="object-cover" />
+        <div className="relative aspect-[16/8] bg-teal-100">
+          {img && <Image src={img.src} alt={img.alt} fill sizes="672px" className="object-cover" />}
           <button
             type="button"
             onClick={onClose}

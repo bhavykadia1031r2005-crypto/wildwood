@@ -84,6 +84,44 @@ The dashboard reuses the site's brand palette plus a neutral gray scale
 (`--color-gray-*` in `globals.css`); the visitor-facing AI chat button is
 hidden under `/admin`.
 
+## Homepage editor (`/admin/content`) — demo
+
+A content editor under **Website → Homepage editor** in the admin sidebar.
+Everything on the homepage can be changed or deleted from it:
+
+- **Homepage layout**: reorder sections, or hide them (hidden sections also
+  drop out of the menu).
+- **Hero & events**: headline, intro, buttons, calendar on/off, and the
+  calendar's events.
+- **Trip planner**, **Closing banner**: headings, text and buttons.
+- **Map & places**: section copy and every map place (category, area,
+  photo, coordinates).
+- **Things to do**: the category cards (image, title, description, link,
+  alt text).
+- **Places to stay**: section copy and the sample listings (list order is
+  the "Recommended" sort).
+- **Photo strip & QR**: strip photos and the pocket-guide card text.
+- **Navigation & footer**: menu links and buttons, footer text and link
+  columns.
+
+Lists support add, edit, delete (with undo), bulk delete, reorder and search.
+Images can come from the site's photo library or be uploaded. Headings use
+`*asterisks*` for the script-style highlighted words, with a live preview.
+Every page has "Restore original", and the layout page has "Reset all demo
+edits".
+
+**How the demo works:** edits are saved to the browser's `localStorage`
+(`lib/cms/store.ts`) and read back by the homepage. Changes appear right
+away, including in other open tabs. Nothing is sent to a server. Other
+visitors, site search, the AI guide and the `/events` and `/guide` pages
+still use the original content in `data/`. Uploads are resized to 1280px,
+but browsers allow only about 5 MB per site.
+
+To make it real, replace `read`/`write` in `lib/cms/store.ts` with calls to a
+CMS or database (and add sign-in). Components only use `useCms`,
+`useContent`, `saveContent` and `resetContent`. Defaults live in
+`lib/cms/content.ts`.
+
 ## Configuration
 
 All team-supplied values live in `lib/site.ts`, fed by the environment variables
@@ -161,7 +199,8 @@ app/            routes, layout, global styles, /api/newsletter
 components/     navigation, hero, itinerary, explore, stays, gallery, cta,
                 footer, layout, animation, ui, brand
 data/           content and sample data
-lib/            site config, animation setup, hooks, itinerary generator, utils
+lib/            site config, animation setup, hooks, itinerary generator, utils,
+                cms/ (editable homepage content + demo store), admin/ (dashboard data)
 public/         images, hero media, brand assets, og-image.jpg   
 
 

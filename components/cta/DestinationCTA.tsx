@@ -6,6 +6,8 @@ import { ParallaxImage } from "@/components/animation/ParallaxImage";
 import { useReveal } from "@/components/animation/useReveal";
 import { MagneticButton } from "@/components/ui/Button";
 import { gsap, MOTION_OK, useGSAP } from "@/lib/animation";
+import { Accent } from "@/lib/cms/render";
+import { useContent } from "@/lib/cms/store";
 
 /** Retro boardwalk sun: horizontal cut-outs across its lower half. */
 const sunStripes =
@@ -14,6 +16,7 @@ const sunStripes =
 export function DestinationCTA() {
   const root = useRef<HTMLElement>(null);
   useReveal(root);
+  const copy = useContent("cta");
 
   useGSAP(
     () => {
@@ -63,18 +66,24 @@ export function DestinationCTA() {
 
       <div className="mx-auto max-w-[1320px] px-5 pb-48 pt-28 sm:px-8 md:pb-60 md:pt-40">
         <h2 id="cta-title" data-split className="display max-w-[13ch] text-[clamp(3.4rem,10vw,9.5rem)]">
-          Your next great story <span className="display-accent text-sun-400">starts here.</span>
+          <Accent text={copy.title} className="text-sun-400" />
         </h2>
-        <p data-reveal className="mt-8 max-w-xl text-xl leading-relaxed text-white/90 md:text-2xl">
-          Salt in the air. Sand between your toes. A little more Wildwoods in your life.
-        </p>
+        {copy.text && (
+          <p data-reveal className="mt-8 max-w-xl text-xl leading-relaxed text-white/90 md:text-2xl">
+            {copy.text}
+          </p>
+        )}
         <div data-reveal className="mt-10 flex flex-wrap gap-3">
-          <MagneticButton href="/#itinerary" variant="sun" size="lg" icon={<CalendarHeart className="size-5" />}>
-            Plan Your Trip
-          </MagneticButton>
-          <MagneticButton href="/#things-to-do" variant="light" size="lg" icon={<ArrowUpRight className="size-5" />}>
-            Explore Things to Do
-          </MagneticButton>
+          {copy.primaryLabel && (
+            <MagneticButton href={copy.primaryHref} variant="sun" size="lg" icon={<CalendarHeart className="size-5" />}>
+              {copy.primaryLabel}
+            </MagneticButton>
+          )}
+          {copy.secondaryLabel && (
+            <MagneticButton href={copy.secondaryHref} variant="light" size="lg" icon={<ArrowUpRight className="size-5" />}>
+              {copy.secondaryLabel}
+            </MagneticButton>
+          )}
         </div>
       </div>
 

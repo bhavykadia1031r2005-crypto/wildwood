@@ -5,6 +5,9 @@ import { ArrowDownRight, Pause, Play } from "lucide-react";
 import { MagneticButton } from "@/components/ui/Button";
 import { heroVideo } from "@/data/media";
 import { gsap, MOTION_OK, REDUCED, SplitText, useGSAP } from "@/lib/animation";
+import { defaultContent } from "@/lib/cms/content";
+import { Accent, plainText } from "@/lib/cms/render";
+import { useContent } from "@/lib/cms/store";
 import { useReducedMotion } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 import { EventCalendar } from "./EventCalendar";
@@ -20,6 +23,9 @@ export function VideoHero() {
   const [userPaused, setUserPaused] = useState<boolean | null>(null);
   const reduced = useReducedMotion();
   const paused = userPaused ?? reduced;
+  const hero = useContent("hero");
+  const events = useContent("events");
+  const showCalendar = hero.showCalendar && events.length > 0;
 
   useGSAP(
     () => {
@@ -93,7 +99,10 @@ export function VideoHero() {
         />
       </div>
 
-      <div className="relative z-10 mx-auto mt-auto grid w-full max-w-[1320px] items-end gap-12 px-5 pb-16 pt-36 sm:px-8 lg:grid-cols-[minmax(0,1fr)_290px] lg:gap-12 lg:pr-[max(2rem,calc(6rem_-_(100vw_-_1320px)/2))] lg:pb-[clamp(2.25rem,5vh,3.5rem)]">
+      <div className={cn(
+          "relative z-10 mx-auto mt-auto grid w-full max-w-[1320px] items-end gap-12 px-5 pb-16 pt-36 sm:px-8 lg:gap-12 lg:pb-[clamp(2.25rem,5vh,3.5rem)]",
+          showCalendar && "lg:grid-cols-[minmax(0,1fr)_290px] lg:pr-[max(2rem,calc(6rem_-_(100vw_-_1320px)/2))]",
+        )}>
         <div className="hero-copy">
           <h1
             id="hero-title"
@@ -101,29 +110,35 @@ export function VideoHero() {
             data-intro
             className="display text-[clamp(2.4rem,10.5vw,3.6rem)] text-white md:text-[clamp(3.6rem,6vw,6.3rem)]"
           >
-            <span className="block whitespace-nowrap">Make Waves</span>{" "}
-            <span className="block whitespace-nowrap">
-              <span className="display-accent text-sun-400">in the</span> Wildwoods
-            </span>
+            <HeroLine text={hero.line1} fallback={defaultContent.hero.line1} />{" "}
+            <HeroLine text={hero.line2} fallback={defaultContent.hero.line2} />
           </h1>
-          <p data-hero-fade data-intro className="mt-4 max-w-[36ch] text-base leading-relaxed text-white/90 md:text-lg">
-            Five miles of free beaches, an iconic boardwalk, and endless summer memories.
-          </p>
+          {hero.intro && (
+            <p data-hero-fade data-intro className="mt-4 max-w-[36ch] text-base leading-relaxed text-white/90 md:text-lg">
+              {hero.intro}
+            </p>
+          )}
           <div data-hero-fade data-intro className="mt-6 flex flex-wrap items-center gap-3">
-            <MagneticButton href="/#explore" variant="sun" size="md" icon={<ArrowDownRight className="size-4" strokeWidth={2.4} />}>
-              Discover Wildwoods
-            </MagneticButton>
-            <MagneticButton href="/#itinerary" variant="outline-light" size="md">
-              Plan Your Escape
-            </MagneticButton>
+            {hero.primaryLabel && (
+              <MagneticButton href={hero.primaryHref} variant="sun" size="md" icon={<ArrowDownRight className="size-4" strokeWidth={2.4} />}>
+                {hero.primaryLabel}
+              </MagneticButton>
+            )}
+            {hero.secondaryLabel && (
+              <MagneticButton href={hero.secondaryHref} variant="outline-light" size="md">
+                {hero.secondaryLabel}
+              </MagneticButton>
+            )}
           </div>
         </div>
 
-        <div className="hero-copy flex lg:justify-end">
-          <div data-hero-calendar data-intro className="w-full max-w-[290px]">
-            <EventCalendar paused={paused} />
+        {showCalendar && (
+          <div className="hero-copy flex lg:justify-end">
+            <div data-hero-calendar data-intro className="w-full max-w-[290px]">
+              <EventCalendar paused={paused} />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <button
@@ -138,6 +153,17 @@ export function VideoHero() {
 
       <ScrollCue className="absolute bottom-7 left-1/2 z-10 hidden -translate-x-1/2 lg:flex" />
     </section>
+  );
+}
+
+/** One headline line; kept on a single line unless the edited copy is much longer than the default. */
+function HeroLine({ text, fallback }: { text: string; fallback: string }) {
+  if (!text) return null;
+  const nowrap = plainText(text).length <= plainText(fallback).length + 2;
+  return (
+    <span className={cn("block", nowrap && "whitespace-nowrap")}>
+      <Accent text={text} className="text-sun-400" />
+    </span>
   );
 }
 

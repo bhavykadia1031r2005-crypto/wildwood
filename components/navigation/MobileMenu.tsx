@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
-import { navCtas, primaryNav } from "@/lib/site";
+import { useNavigation } from "@/lib/cms/navigation";
 import { useFocusTrap, useScrollLock } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +20,7 @@ export function MobileMenu({
   activeSection: string | null;
 }) {
   const panel = useRef<HTMLDivElement>(null);
+  const { links, primaryCta, secondaryCta } = useNavigation();
   useFocusTrap(panel, open, onClose);
   useScrollLock(open);
 
@@ -52,9 +53,9 @@ export function MobileMenu({
 
           <nav aria-label="Mobile" className="relative">
             <ul className="flex flex-col gap-1">
-              {primaryNav.map((item, i) => (
+              {links.map((item, i) => (
                 <motion.li
-                  key={item.label}
+                  key={item.id}
                   initial={{ opacity: 0, y: 28 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10, transition: { duration: 0.15 } }}
@@ -63,10 +64,10 @@ export function MobileMenu({
                   <Link
                     href={item.href}
                     onClick={onClose}
-                    aria-current={item.section === activeSection ? "location" : undefined}
+                    aria-current={item.section !== null && item.section === activeSection ? "location" : undefined}
                     className={cn(
                       "display flex items-center justify-between border-b border-white/15 py-4 text-[clamp(2.4rem,11vw,3.6rem)]",
-                      item.section === activeSection ? "text-sun-400" : "text-white",
+                      item.section !== null && item.section === activeSection ? "text-sun-400" : "text-white",
                     )}
                   >
                     {item.label}
@@ -85,18 +86,18 @@ export function MobileMenu({
             transition={{ delay: 0.5, duration: 0.5, ease }}
           >
             <Link
-              href={navCtas.primary.href}
+              href={primaryCta.href}
               onClick={onClose}
               className="inline-flex h-14 items-center justify-center rounded-full bg-sun-500 px-7 font-semibold text-teal-700"
             >
-              {navCtas.primary.label}
+              {primaryCta.label}
             </Link>
             <Link
-              href={navCtas.secondary.href}
+              href={secondaryCta.href}
               onClick={onClose}
               className="inline-flex h-14 items-center justify-center rounded-full bg-white px-7 font-semibold text-teal-600"
             >
-              {navCtas.secondary.label}
+              {secondaryCta.label}
             </Link>
           </motion.div>
           <button
