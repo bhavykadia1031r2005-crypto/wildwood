@@ -16,30 +16,33 @@ npm run build && npm start   # production
 1. **Floating navigation**: capsule bar with wave-lip ends (`.nav-shape` in
    `globals.css`), active-section indicator, search overlay (`/` or ⌘K), hide on
    scroll down, animated mobile menu.
-2. **Video hero**: one full-bleed day-to-night background video, headline and
+
+
+   
+3. **Video hero**: one full-bleed day-to-night background video, headline and
    CTAs bottom-left, and a tear-off "events calendar" bottom-right
    (`components/hero/EventCalendar.tsx`, data in `data/events.ts`) that
    auto-advances, pauses on hover/focus or with the hero's pause button, and
    stacks under the copy on mobile.
-3. **Itinerary builder** (`#itinerary`): a "Create My Itinerary" button opens
+4. **Itinerary builder** (`#itinerary`): a "Create My Itinerary" button opens
    a boarding-pass popup with style, length, interests, group and
    optional budget; a live "trip ticket"; a day-by-day plan generated locally
    from `data/itinerary.ts` (no AI service) with shuffle, copy and share.
-4. **Explore by area** (`#explore`): Leaflet map with category filters, an
+5. **Explore by area** (`#explore`): Leaflet map with category filters, an
    illustrated 2D island with clickable areas, and a drag-to-look panorama viewer.
-5. **More to explore** (`#things-to-do`): the ten
+6. **More to explore** (`#things-to-do`): the ten
    official "So Much To Do" categories (Amusements, Beaches, Boardwalk, Dining,
    Festivals & Events, Outdoor Activities, Nightlife, Local Spirits, History &
    Culture, Golf) as cards with a title and description, linking to their
    wildwoodsnj.com pages (`data/moreToExplore.ts`, images in
    `public/images/explore/`).
-6. **Places to stay** (`#stays`): search, type/area/price/rating/amenity/guest
+7. **Places to stay** (`#stays`): search, type/area/price/rating/amenity/guest
    filters, sort, active chips, mobile filter drawer, empty state, details dialog.
-7. **Photo strip & pocket guide** (`#pocket-guide`): a scroll-driven photo strip
+8. **Photo strip & pocket guide** (`#pocket-guide`): a scroll-driven photo strip
    followed by the QR "Take Wildwoods with you" card
    (`components/gallery/PhotoStripGuide.tsx`).
-8. **Destination CTA** (`#plan`).
-9. **Footer**: link columns, newsletter (validated, with a `/api/newsletter`
+9. **Destination CTA** (`#plan`).
+10. **Footer**: link columns, newsletter (validated, with a `/api/newsletter`
    route), legal links, credits and back to top.
 
 **AI guide (every page):** a sticky button bottom-right opens a chat panel
