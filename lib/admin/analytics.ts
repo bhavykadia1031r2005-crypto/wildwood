@@ -496,6 +496,30 @@ export function yearOverYear(ds: DemoDataset, service: ServiceFilter) {
   };
 }
 
+/* ---------- Activity heatmap ---------- */
+
+export const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
+
+/** Visits in the period by weekday (Mon–Sun rows) and starting hour (0–23 columns, ET). */
+export function activityHeatmap(ds: DemoDataset, r: DayRange, service: ServiceFilter) {
+  const grid = WEEKDAYS.map(() => Array<number>(24).fill(0));
+  for (const s of sessionsIn(ds, r, service)) grid[(dayToDate(s.day).getUTCDay() + 6) % 7][s.hour]++;
+  let max = 0;
+  let peak = { day: 0, hour: 0 };
+  grid.forEach((row, d) =>
+    row.forEach((v, h) => {
+      if (v > max) {
+        max = v;
+        peak = { day: d, hour: h };
+      }
+    }),
+  );
+  const byDay = grid.map((row) => row.reduce((a, b) => a + b, 0));
+  const total = byDay.reduce((a, b) => a + b, 0);
+  const busiestDay = byDay.indexOf(Math.max(...byDay));
+  return { grid, max, total, peak, busiestDay, weekendShare: total ? (byDay[5] + byDay[6]) / total : 0 };
+}
+
 /* ---------- Customer profile ---------- */
 
 export type TimelineEvent = {

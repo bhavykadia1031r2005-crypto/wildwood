@@ -76,6 +76,24 @@ across tabs. No account is needed and nothing is sent to a server. Items are
 looked up in the current content, so edits from the demo editor show up.
 Items removed from the site are shown as "no longer listed".
 
+**Accessibility menu (every page except `/admin`):** a button bottom-left, or
+Alt/Option + A, opens a panel (`components/a11y/AccessibilityWidget.tsx`) with:
+
+- **Profiles:** one-tap presets for seizure-safe, vision-impaired, ADHD,
+  dyslexia, cognitive and keyboard use.
+- **Content:** text size 80–150%, highlight titles or links, the OpenDyslexic
+  font, letter spacing, line height, bold text and text alignment.
+- **Colour:** high contrast, dark contrast, monochrome, and low or high
+  saturation.
+- **Orientation:** stop animations (CSS, GSAP reveals, Motion and video
+  autoplay), hide images, a reading guide or mask, a big cursor, a strong focus
+  outline, and click-to-hear text to speech (the browser's built-in speech).
+
+Settings are classes on `<html>` (styles at the end of `globals.css`), saved
+in `localStorage`, and restored by a tiny inline script before the first
+paint (`lib/a11y-apply.ts`). These tools help visitors but don't replace an
+accessible site; keep `/legal/accessibility` up to date.
+
 Supporting routes: `/guide` (the QR destination), `/events`, `/wishlist`, `/credits`,
 `/legal/privacy|terms|accessibility` (placeholders) and a branded 404.
 

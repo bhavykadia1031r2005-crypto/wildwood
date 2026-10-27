@@ -54,6 +54,7 @@ export function ParallaxImage({
     <div ref={wrap} className={cn("overflow-hidden", className)}>
       <div
         ref={inner}
+        data-scroll-motion
         className="absolute inset-x-0 will-change-transform"
         style={{ top: `-${strength / 2}%`, bottom: `-${strength / 2}%` }}
       >

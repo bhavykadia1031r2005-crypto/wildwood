@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   cacheComponents: true,
+  // Keep the dev-only Next.js badge clear of the accessibility button (bottom-left).
+  devIndicators: { position: "top-right" },
   partialPrefetching: true,
   // Resolved once at build time so the footer copyright stays static.
   env: {

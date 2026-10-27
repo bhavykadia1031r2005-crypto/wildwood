@@ -66,6 +66,8 @@ export type Session = {
   day: number;
   /** 0 for the visitor's first recorded visit. */
   index: number;
+  /** Hour the visit started, 0–23, Eastern Time. */
+  hour: number;
   source: SourceId;
   services: ServiceId[];
   pageViews: number;
@@ -170,8 +172,24 @@ function statusFor(r: () => number, age: number, qualified: boolean): { status: 
  * on irrational numbers). Used instead of plain random draws for the choices
  * that drive headline metrics, so short date ranges don't swing by chance.
  */
-const IRRATIONALS = [0.6180339887, 0.4142135624, 0.7320508076, 0.2360679775, 0.6457513111, 0.3166247904, 0.6055512755];
+const IRRATIONALS = [0.6180339887, 0.4142135624, 0.7320508076, 0.2360679775, 0.6457513111, 0.3166247904, 0.6055512755, 0.1231056256];
 const spread = (i: number, dim: number) => ((i + 1) * IRRATIONALS[dim]) % 1;
+
+/** Share of visits starting in each hour (ET): lunch and evening peaks on weekdays, a long midday on weekends. */
+const HOURS_WEEKDAY = [0.5, 0.3, 0.2, 0.15, 0.15, 0.3, 0.9, 2.2, 3.6, 4.4, 4.8, 5.2, 6.4, 6.2, 5.0, 4.6, 4.7, 5.4, 6.3, 7.4, 7.9, 6.6, 4.2, 1.8];
+const HOURS_WEEKEND = [0.9, 0.5, 0.3, 0.2, 0.15, 0.2, 0.4, 1.2, 2.6, 4.6, 6.4, 7.6, 8.1, 8.3, 7.8, 7.0, 6.2, 5.6, 5.4, 5.8, 5.9, 4.9, 3.3, 1.8];
+
+/** Deterministic visit hour, spread evenly over the day's shape (no random draws, so other numbers don't shift). */
+function hourFor(n: number, day: number) {
+  const dow = dayToDate(day).getUTCDay();
+  const weights = dow === 0 || dow === 6 ? HOURS_WEEKEND : HOURS_WEEKDAY;
+  let x = spread(n, 7) * weights.reduce((a, b) => a + b, 0);
+  for (let h = 0; h < 24; h++) {
+    x -= weights[h];
+    if (x < 0) return h;
+  }
+  return 23;
+}
 
 /** Steady growth through the year (no seasonal dip): daily traffic rises about 3.2×. */
 const GROWTH = Math.log(3.2) / DEMO_DAYS;
@@ -352,6 +370,7 @@ function build(seed = SEED, phases = PHASES): DemoDataset {
         visitorId: v.id,
         day: visit.day,
         index,
+        hour: hourFor(sCount, visit.day),
         source: visit.source,
         services: visit.services,
         pageViews: 1 + visit.services.length + Math.floor(r() * 4),

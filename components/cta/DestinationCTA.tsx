@@ -59,6 +59,7 @@ export function DestinationCTA() {
 
       <div
         data-cta-sun
+        data-scroll-motion
         aria-hidden="true"
         className="absolute -right-24 bottom-28 -z-10 size-64 rounded-full bg-[linear-gradient(to_bottom,#FFD400_0%,#F47B20_62%,#F15A24_100%)] opacity-95 md:bottom-auto md:-right-[10%] md:top-[34%] md:size-[46vw] lg:right-[3%] lg:size-[min(36vw,36rem)]"
         style={{ WebkitMaskImage: sunStripes, maskImage: sunStripes }}
@@ -89,13 +90,13 @@ export function DestinationCTA() {
 
       {/* Layered waves flowing into the footer */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-40 md:h-52">
-        <svg data-cta-wave viewBox="0 0 1440 200" preserveAspectRatio="none" className="absolute -inset-x-[5%] bottom-10 h-full w-[110%] text-turquoise-500/70">
+        <svg data-cta-wave data-scroll-motion viewBox="0 0 1440 200" preserveAspectRatio="none" className="absolute -inset-x-[5%] bottom-10 h-full w-[110%] text-turquoise-500/70">
           <path d="M0 120c120-50 240-60 360-30s240 70 360 40 240-90 360-70 240 60 360 30v110H0z" fill="currentColor" />
         </svg>
-        <svg data-cta-wave viewBox="0 0 1440 200" preserveAspectRatio="none" className="absolute -inset-x-[5%] bottom-4 h-[80%] w-[110%] text-ocean-500">
+        <svg data-cta-wave data-scroll-motion viewBox="0 0 1440 200" preserveAspectRatio="none" className="absolute -inset-x-[5%] bottom-4 h-[80%] w-[110%] text-ocean-500">
           <path d="M0 110c140-40 260-40 380 0s240 50 360 10 260-70 380-40 220 50 320 20v100H0z" fill="currentColor" />
         </svg>
-        <svg data-cta-wave viewBox="0 0 1440 200" preserveAspectRatio="none" className="absolute -inset-x-[5%] -bottom-px h-[55%] w-[110%] text-teal-600">
+        <svg data-cta-wave data-scroll-motion viewBox="0 0 1440 200" preserveAspectRatio="none" className="absolute -inset-x-[5%] -bottom-px h-[55%] w-[110%] text-teal-600">
           <path d="M0 90c160-50 300-50 440 0s280 50 420 0 300-50 580 0v110H0z" fill="currentColor" />
         </svg>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useState, useSyncExternalStore, type RefObject } from "react";
+import { useStopAnimations } from "./a11y";
 
 export const useIsomorphicLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
@@ -85,8 +86,10 @@ export function useMediaQuery(query: string, serverDefault = false) {
   );
 }
 
+/** OS "reduce motion" setting, or "Stop animations" in the site's accessibility menu. */
 export function useReducedMotion() {
-  return useMediaQuery("(prefers-reduced-motion: reduce)");
+  const system = useMediaQuery("(prefers-reduced-motion: reduce)");
+  return useStopAnimations() || system;
 }
 
 /**

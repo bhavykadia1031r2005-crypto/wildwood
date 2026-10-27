@@ -7,6 +7,7 @@ import { KpiCards } from "../KpiCards";
 import { useExport } from "../useExport";
 import { RecentInquiries, ReturningSnapshot, ServiceSnapshot, SourcesCard, TrafficCard, useTraffic } from "../blocks";
 import { DemoNotice } from "../DemoNotice";
+import { ActivityHeatmap } from "../ActivityHeatmap";
 
 export function OverviewPage() {
   const [open, setOpen] = useState<string | null>(null);
@@ -26,6 +27,7 @@ export function OverviewPage() {
     <div className="space-y-5">
       <DemoNotice />
       <KpiCards />
+      <ActivityHeatmap />
       <div className="grid gap-5 xl:grid-cols-3">
         <TrafficCard className="xl:col-span-2" traffic={traffic} />
         <SourcesCard />

@@ -86,8 +86,8 @@ export function VideoHero() {
       className="relative isolate flex min-h-[100svh] flex-col overflow-hidden bg-teal-900 text-white lg:h-[100svh] lg:max-h-[1100px] lg:min-h-[560px]"
     >
       <div data-hero-frame data-intro className="absolute inset-0 overflow-hidden">
-        <div className="hero-media absolute inset-0 will-change-transform">
-          <div className="hero-zoom absolute inset-0">
+        <div data-scroll-motion className="hero-media absolute inset-0 will-change-transform">
+          <div data-scroll-motion className="hero-zoom absolute inset-0">
             <HeroVideoPanel src={heroVideo.src} mobileSrc={heroVideo.mobileSrc} poster={heroVideo.poster} paused={paused} />
           </div>
         </div>
@@ -103,7 +103,7 @@ export function VideoHero() {
           "relative z-10 mx-auto mt-auto grid w-full max-w-[1320px] items-end gap-12 px-5 pb-16 pt-36 sm:px-8 lg:gap-12 lg:pb-[clamp(2.25rem,5vh,3.5rem)]",
           showCalendar && "lg:grid-cols-[minmax(0,1fr)_290px] lg:pr-[max(2rem,calc(6rem_-_(100vw_-_1320px)/2))]",
         )}>
-        <div className="hero-copy">
+        <div data-scroll-motion className="hero-copy">
           <h1
             id="hero-title"
             data-hero-title
@@ -133,7 +133,7 @@ export function VideoHero() {
         </div>
 
         {showCalendar && (
-          <div className="hero-copy flex lg:justify-end">
+          <div data-scroll-motion className="hero-copy flex lg:justify-end">
             <div data-hero-calendar data-intro className="w-full max-w-[290px]">
               <EventCalendar paused={paused} />
             </div>

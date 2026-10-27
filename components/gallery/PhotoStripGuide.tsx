@@ -47,7 +47,7 @@ export function PhotoStripGuide() {
     <section id="pocket-guide" ref={root} className="on-light relative overflow-x-clip bg-white pb-24 pt-2 md:pb-32 md:pt-4">
       {photos.length > 0 && (
         <div aria-hidden="true" className="overflow-hidden">
-          <div ref={strip} className="flex w-max gap-4 pl-5 will-change-transform sm:pl-8">
+          <div ref={strip} data-scroll-motion className="flex w-max gap-4 pl-5 will-change-transform sm:pl-8">
             {photos.map((ref, i) => {
               const m = resolveImage(ref);
               if (!m) return null;

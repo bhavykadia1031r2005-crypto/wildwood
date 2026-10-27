@@ -85,7 +85,7 @@ export function WishlistNav({ onOpenChange }: { onOpenChange?: (open: boolean) =
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 12, transition: { duration: 0.15 } }}
-                  className="on-dark fixed bottom-5 left-4 right-24 z-[65] flex items-center gap-3 rounded-2xl bg-teal-700 px-4 py-3 text-sm text-white shadow-lift sm:left-1/2 sm:right-auto sm:w-max sm:max-w-md sm:-translate-x-1/2"
+                  className="on-dark fixed bottom-24 left-4 right-4 z-[65] flex items-center gap-3 rounded-2xl bg-teal-700 px-4 py-3 text-sm text-white shadow-lift sm:bottom-6 sm:left-1/2 sm:right-auto sm:w-max sm:max-w-md sm:-translate-x-1/2"
                 >
                   <Heart className="size-4 shrink-0 fill-coral-500 text-coral-500" aria-hidden="true" />
                   <p className="min-w-0 flex-1 leading-snug">

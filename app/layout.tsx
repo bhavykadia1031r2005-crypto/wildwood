@@ -1,9 +1,18 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Figtree, Instrument_Serif } from "next/font/google";
+import { A11yMotion } from "@/components/a11y/A11yMotion";
+import { AccessibilityWidget } from "@/components/a11y/AccessibilityWidget";
 import { ScrollRefresh } from "@/components/animation/ScrollRefresh";
 import { ChatWidget } from "@/components/chat/ChatWidget";
+import { A11Y_STORAGE_KEY, applyA11ySettings } from "@/lib/a11y-apply";
 import { siteConfig } from "@/lib/site";
+// Dyslexia font for the accessibility menu; files only download when it's switched on.
+import "@fontsource/opendyslexic/400.css";
+import "@fontsource/opendyslexic/700.css";
 import "./globals.css";
+
+/** Restores saved accessibility settings before first paint (no flash of the default look). */
+const A11Y_BOOT = `try{(${applyA11ySettings.toString()})(JSON.parse(localStorage.getItem(${JSON.stringify(A11Y_STORAGE_KEY)})||"null"),document.documentElement)}catch(e){}`;
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",
@@ -84,6 +93,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script
           dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }}
         />
+        <script dangerouslySetInnerHTML={{ __html: A11Y_BOOT }} />
       </head>
       <body className="min-h-dvh antialiased" suppressHydrationWarning>
         <a
@@ -92,8 +102,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
-        {children}
-        <ChatWidget />
+        <A11yMotion>
+          {children}
+          <ChatWidget />
+          <AccessibilityWidget />
+        </A11yMotion>
         <ScrollRefresh />
       </body>
     </html>
