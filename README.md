@@ -4,6 +4,9 @@ Homepage and supporting pages for a Wildwoods tourism site, built with
 Next.js 16 (App Router, TypeScript), Tailwind CSS 4, GSAP + ScrollTrigger,
 Motion for React, Leaflet and Lucide.
 
+
+
+
 ```bash
 npm install
 cp .env.example .env.local   # optional — see "Configuration"
