@@ -30,8 +30,9 @@ export default function CreditsPage() {
           photographs (credited below), not 360° captures. Map data &copy; OpenStreetMap contributors. Icons by Lucide (ISC).
         </p>
         <p className="rounded-3xl bg-white p-6 ring-1 ring-teal-500/8 md:col-span-2">
-          <strong className="text-teal-600">More to explore.</strong> The ten category images in the homepage&rsquo;s
-          &ldquo;More to explore&rdquo; grid come from the official Wildwoods tourism website,{" "}
+          <strong className="text-teal-600">More to explore &amp; Business Info.</strong> The ten category images in the homepage&rsquo;s
+          &ldquo;More to explore&rdquo; grid, the photos on the Business Info &amp; Convention Center page and the events-calendar photos come from the
+          official Wildwoods tourism website,{" "}
           <a href="https://wildwoodsnj.com/" target="_blank" rel="noopener" className="underline underline-offset-2 hover:text-ocean-600">
             wildwoodsnj.com
           </a>

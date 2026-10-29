@@ -18,10 +18,12 @@ export const SECTION_IDS = ["hero", "itinerary", "explore", "things-to-do", "sta
 export type SectionId = (typeof SECTION_IDS)[number];
 
 export type LinkItem = { id: string; label: string; href: string };
+/** A menu link; with `children` it opens a dropdown instead of navigating. */
+export type NavLink = LinkItem & { children?: (LinkItem & { description?: string })[] };
 
 export type SiteContent = {
   layout: { id: SectionId; visible: boolean }[];
-  navigation: { links: LinkItem[]; primaryLabel: string; primaryHref: string; secondaryLabel: string; secondaryHref: string };
+  navigation: { links: NavLink[]; primaryLabel: string; primaryHref: string; secondaryLabel: string; secondaryHref: string };
   hero: {
     line1: string;
     line2: string;
@@ -52,7 +54,10 @@ const link = (label: string, href: string): LinkItem => ({ id: slug(label), labe
 export const defaultContent: SiteContent = {
   layout: SECTION_IDS.map((id) => ({ id, visible: true })),
   navigation: {
-    links: primaryNav.map((n) => link(n.label, n.href)),
+    links: primaryNav.map((n) => ({
+      ...link(n.label, n.href),
+      ...(n.children && { children: n.children.map((c) => ({ ...link(c.label, c.href), description: c.description })) }),
+    })),
     primaryLabel: navCtas.primary.label,
     primaryHref: navCtas.primary.href,
     secondaryLabel: navCtas.secondary.label,
@@ -152,6 +157,8 @@ export const defaultContent: SiteContent = {
           link("Area Guides", "/#explore"),
           link("Family Activities", "/#itinerary"),
           link("Local Experiences", "/#things-to-do"),
+          link("Business Info", "/business-info"),
+          link("Convention Center", "/business-info#convention-center"),
         ],
       },
     ],

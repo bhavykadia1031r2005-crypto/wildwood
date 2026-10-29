@@ -11,8 +11,8 @@ import "@fontsource/opendyslexic/400.css";
 import "@fontsource/opendyslexic/700.css";
 import "./globals.css";
 
-/** Restores saved accessibility settings before first paint (no flash of the default look). */
-const A11Y_BOOT = `try{(${applyA11ySettings.toString()})(JSON.parse(localStorage.getItem(${JSON.stringify(A11Y_STORAGE_KEY)})||"null"),document.documentElement)}catch(e){}`;
+/** Restores saved accessibility settings before first paint (no flash of the default look). Not in /admin. */
+const A11Y_BOOT = `try{if(location.pathname.indexOf("/admin")!==0)(${applyA11ySettings.toString()})(JSON.parse(localStorage.getItem(${JSON.stringify(A11Y_STORAGE_KEY)})||"null"),document.documentElement)}catch(e){}`;
 
 const bricolage = Bricolage_Grotesque({
   variable: "--font-bricolage",

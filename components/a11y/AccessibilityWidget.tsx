@@ -41,6 +41,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { A11Y_DEFAULTS, resetA11y, setA11y, useA11y, type A11ySettings } from "@/lib/a11y";
+import { applyA11ySettings } from "@/lib/a11y-apply";
 import { legalHref } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -85,6 +86,12 @@ export function AccessibilityWidget() {
   const panel = useRef<HTMLDivElement>(null);
   const isMac = useIsMac();
   const hidden = pathname.startsWith("/admin");
+
+  // The admin area has no menu button, so visitor settings never apply there
+  // (including after client-side navigation between the site and /admin).
+  useEffect(() => {
+    applyA11ySettings(hidden ? null : settings, document.documentElement);
+  }, [hidden, settings]);
   const changed = (Object.keys(A11Y_DEFAULTS) as (keyof A11ySettings)[]).some((k) => settings[k] !== A11Y_DEFAULTS[k]);
 
   // Alt/Option + A toggles the menu from anywhere.

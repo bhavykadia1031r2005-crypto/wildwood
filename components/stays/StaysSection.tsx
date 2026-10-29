@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { ArrowUpDown, ChevronDown, Info, Search, SlidersHorizontal, X } from "lucide-react";
 import { SectionHeader } from "@/components/ui/SectionHeader";
 import { useReveal } from "@/components/animation/useReveal";
-import type { Stay } from "@/data/accommodations";
+import { stayAreas, type Stay } from "@/data/accommodations";
 import { defaultContent } from "@/lib/cms/content";
 import { Accent, fittedTitleClass } from "@/lib/cms/render";
 import { useContent } from "@/lib/cms/store";
@@ -39,6 +39,16 @@ export function StaysSection() {
     () =>
       listen("ww:search-stays", ({ query }) => {
         setFilters({ ...defaultFilters, query });
+        setShowAll(true);
+      }),
+    [],
+  );
+
+  // "Book your stay" card on the events page: area and party size.
+  useEffect(
+    () =>
+      listen("ww:filter-stays", ({ area, guests }) => {
+        setFilters({ ...defaultFilters, area: (area in stayAreas ? area : "all") as Filters["area"], guests: Math.max(1, Math.min(16, guests)) });
         setShowAll(true);
       }),
     [],

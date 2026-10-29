@@ -319,10 +319,11 @@ export function NavigationPage() {
         fields={[
           { key: "label", label: "Label", type: "text", required: true, maxLength: 22 },
           { key: "href", label: "Link", type: "link", required: true, hint: "e.g. /#stays, /events or https://…" },
+          { key: "children", label: "Dropdown links (optional)", type: "links", max: 6, hint: "Add links here to turn this item into a dropdown menu." },
         ]}
-        max={7}
-        create={() => ({ id: "", label: "", href: "/#" })}
-        row={{ title: (l) => l.label, subtitle: (l) => l.href }}
+        max={8}
+        create={() => ({ id: "", label: "", href: "/#", children: [] })}
+        row={{ title: (l) => l.label, subtitle: (l) => (l.children?.length ? `Dropdown · ${l.children.map((c) => c.label).join(", ")}` : l.href) }}
       />
       <CopyForm
         contentKey="navigation"

@@ -85,13 +85,15 @@ export const siteConfig = {
   buildYear: Number(process.env.BUILD_YEAR) || 2026,
 } as const;
 
-export type NavItem = { label: string; href: string; section?: string };
+export type NavItem = { label: string; href: string; section?: string; children?: { label: string; href: string; description?: string }[] };
 
 export const primaryNav: NavItem[] = [
   { label: "Explore", href: "/#explore", section: "explore" },
   { label: "Things to Do", href: "/#things-to-do", section: "things-to-do" },
   { label: "Places to Stay", href: "/#stays", section: "stays" },
   { label: "Events", href: "/events" },
+  // One page with both parts: Business Info, then the Convention Center.
+  { label: "Business Info", href: "/business-info" },
   { label: "Plan Your Trip", href: "/#itinerary", section: "itinerary" },
 ];
 

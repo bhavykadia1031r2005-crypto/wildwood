@@ -1,17 +1,27 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
-import { Search } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
-import { MagneticButton } from "@/components/ui/Button";
+import { buttonClasses, MagneticButton } from "@/components/ui/Button";
 import { WishlistNav } from "@/components/wishlist/WishlistNav";
 import { useNavigation } from "@/lib/cms/navigation";
 import { useActiveSection, useReducedMotion } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 import { MobileMenu } from "./MobileMenu";
+import { NavDropdown } from "./NavDropdown";
+import { navItemClass } from "./navStyles";
 import { SearchOverlay } from "./SearchOverlay";
+
+/**
+ * How much fits on one row at desktop widths, from most to least: links with both
+ * buttons, links with the main button, links only, or the menu button. Measured, so
+ * it adapts to larger text, accessibility spacing and longer CMS link labels.
+ */
+type Fit = "full" | "one" | "links" | "menu";
 
 /**
  * Floating capsule navigation with wave-lip ends (see `.nav-shape`).
@@ -26,8 +36,45 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
   const [wishlistOpen, setWishlistOpen] = useState(false);
   const { links, primaryCta, secondaryCta, sectionIds, version } = useNavigation();
   const active = useActiveSection(sectionIds, version);
+  const pathname = usePathname();
+  // Page links (not homepage anchors) light up on their own page.
+  const onPage = (href: string) => !href.includes("#") && href !== "/" && pathname.startsWith(href);
   const reduced = useReducedMotion();
   const menuButton = useRef<HTMLButtonElement>(null);
+  const nav = useRef<HTMLElement>(null);
+  const logo = useRef<HTMLAnchorElement>(null);
+  const icons = useRef<HTMLDivElement>(null);
+  const measure = useRef<HTMLDivElement>(null);
+  // null until measured (and below lg), where the breakpoint classes apply.
+  const [fit, setFit] = useState<Fit | null>(null);
+
+  useEffect(() => {
+    const row = nav.current;
+    const probe = measure.current;
+    if (!row || !probe) return;
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const compute = () => {
+      if (!desktop.matches) return setFit(null);
+      const cs = getComputedStyle(row);
+      const gap = parseFloat(cs.columnGap) || 12;
+      const inner = row.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const [linksW, mainW, secondW] = Array.from(probe.children, (el) => (el as HTMLElement).offsetWidth);
+      // Logo, search + wishlist, the gaps between groups and some breathing room around the links.
+      const fixed = (logo.current?.offsetWidth ?? 0) + (icons.current?.offsetWidth ?? 0) + gap * 2 + 32;
+      const next: Fit =
+        fixed + linksW + mainW + secondW + 16 <= inner ? "full" : fixed + linksW + mainW + 8 <= inner ? "one" : fixed + linksW <= inner ? "links" : "menu";
+      setFit(next);
+      if (next !== "menu") setMenuOpen(false);
+    };
+    const observer = new ResizeObserver(compute);
+    observer.observe(row);
+    observer.observe(probe);
+    desktop.addEventListener("change", compute);
+    return () => {
+      observer.disconnect();
+      desktop.removeEventListener("change", compute);
+    };
+  }, []);
 
   useEffect(() => {
     let lastY = window.scrollY;
@@ -103,10 +150,26 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
           </div>
 
           <nav
+            ref={nav}
             aria-label="Primary"
             className="relative flex h-[68px] items-center gap-3 pl-8 pr-3 sm:pl-10 lg:pl-11"
           >
+            {/* Invisible copy of the menu items and buttons, measured to decide what fits. */}
+            <div ref={measure} aria-hidden="true" inert className="pointer-events-none invisible absolute left-0 top-0 flex w-max items-center">
+              <ul className="flex shrink-0 items-center gap-0.5">
+                {links.map((item) => (
+                  <li key={item.id} className={cn(navItemClass, "flex items-center gap-1")}>
+                    {item.label}
+                    {item.children?.length ? <ChevronDown className="size-3.5" strokeWidth={2.6} /> : null}
+                  </li>
+                ))}
+              </ul>
+              <span className={buttonClasses("sun", "sm", "h-11 shrink-0 px-5")}>{primaryCta.label}</span>
+              <span className={buttonClasses("outline-light", "sm", "h-11 shrink-0 px-5")}>{secondaryCta.label}</span>
+            </div>
+
             <Link
+              ref={logo}
               href="/#top"
               aria-label="The Wildwoods, New Jersey — home"
               className="shrink-0 rounded-full"
@@ -115,18 +178,16 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
               <Logo tone="light" preload className="h-11 w-auto sm:h-12" />
             </Link>
 
-            <ul className="mx-auto hidden items-center gap-0.5 lg:flex">
+            <ul className={cn("mx-auto items-center gap-0.5", fit === "menu" ? "hidden" : "hidden lg:flex")}>
               {links.map((item) => {
-                const isActive = item.section !== null && item.section === active;
+                const isActive = (item.section !== null && item.section === active) || onPage(item.href);
+                if (item.children?.length) return <NavDropdown key={item.id} item={item} active={isActive} />;
                 return (
                   <li key={item.id}>
                     <Link
                       href={item.href}
-                      aria-current={isActive ? "location" : undefined}
-                      className={cn(
-                        "group relative block rounded-full px-3.5 py-2 text-[0.92rem] font-semibold transition-colors xl:px-4",
-                        isActive ? "text-teal-700" : "text-white/85 hover:text-white",
-                      )}
+                      aria-current={isActive ? (onPage(item.href) ? "page" : "location") : undefined}
+                      className={cn(navItemClass, "block", isActive ? "text-teal-700" : "text-white/85 hover:text-white")}
                     >
                       {isActive && (
                         <motion.span
@@ -145,22 +206,26 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
               })}
             </ul>
 
-            <div className="ml-auto flex items-center gap-2 lg:ml-0">
-              <button
-                type="button"
-                onClick={() => setSearchOpen(true)}
-                aria-label="Search the Wildwoods"
-                aria-haspopup="dialog"
-                className="grid size-11 place-items-center rounded-full text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-teal-600"
-              >
-                <Search className="size-[1.15rem]" strokeWidth={2.4} />
-              </button>
-              <WishlistNav onOpenChange={setWishlistOpen} />
+            <div className={cn("ml-auto flex shrink-0 items-center gap-2", fit !== "menu" && "lg:ml-0")}>
+              <div ref={icons} className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen(true)}
+                  aria-label="Search the Wildwoods"
+                  aria-haspopup="dialog"
+                  className="grid size-11 place-items-center rounded-full text-white ring-1 ring-inset ring-white/25 transition hover:bg-white hover:text-teal-600"
+                >
+                  <Search className="size-[1.15rem]" strokeWidth={2.4} />
+                </button>
+                <WishlistNav onOpenChange={setWishlistOpen} />
+              </div>
               <MagneticButton
                 href={primaryCta.href}
                 variant="sun"
                 size="sm"
-                wrapperClassName="hidden sm:inline-flex"
+                wrapperClassName={
+                  fit === null ? "hidden sm:inline-flex lg:hidden xl:inline-flex" : fit === "links" ? "hidden" : "hidden sm:inline-flex"
+                }
                 className="h-11 px-5"
               >
                 {primaryCta.label}
@@ -169,7 +234,7 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
                 href={secondaryCta.href}
                 variant="outline-light"
                 size="sm"
-                wrapperClassName="hidden xl:inline-flex"
+                wrapperClassName={fit === null ? "hidden min-[1360px]:inline-flex" : fit === "full" ? "inline-flex" : "hidden"}
                 className="h-11 px-5"
               >
                 {secondaryCta.label}
@@ -181,7 +246,7 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
                 aria-label={menuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={menuOpen}
                 aria-controls="mobile-menu"
-                className="relative grid size-11 place-items-center rounded-full bg-white text-teal-600 lg:hidden"
+                className={cn("relative grid size-11 place-items-center rounded-full bg-white text-teal-600", fit !== "menu" && "lg:hidden")}
               >
                 <span className="sr-only">Menu</span>
                 <span aria-hidden="true" className="relative block h-3.5 w-5">
@@ -210,7 +275,7 @@ export function Navbar({ overHero = true }: { overHero?: boolean }) {
         </div>
       </motion.header>
 
-      <MobileMenu open={menuOpen} onClose={closeMenu} activeSection={active} />
+      <MobileMenu open={menuOpen} onClose={closeMenu} activeSection={active} desktop={fit === "menu"} />
       <SearchOverlay open={searchOpen} onClose={closeSearch} />
     </>
   );

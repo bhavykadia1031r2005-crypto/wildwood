@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, CornerDownRight } from "lucide-react";
 import { useNavigation } from "@/lib/cms/navigation";
 import { useFocusTrap, useScrollLock } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
@@ -14,15 +14,23 @@ export function MobileMenu({
   open,
   onClose,
   activeSection,
+  desktop = false,
 }: {
   open: boolean;
   onClose: () => void;
   activeSection: string | null;
+  /** Also shown at desktop widths, when the navbar has collapsed to the menu button. */
+  desktop?: boolean;
 }) {
   const panel = useRef<HTMLDivElement>(null);
   const { links, primaryCta, secondaryCta } = useNavigation();
   useFocusTrap(panel, open, onClose);
   useScrollLock(open);
+  // The floating accessibility and chat buttons would cover the menu's own buttons.
+  useEffect(() => {
+    document.documentElement.classList.toggle("ww-menu-open", open);
+    return () => document.documentElement.classList.remove("ww-menu-open");
+  }, [open]);
 
   return (
     <AnimatePresence>
@@ -33,7 +41,7 @@ export function MobileMenu({
           role="dialog"
           aria-modal="true"
           aria-label="Site menu"
-          className="fixed inset-0 z-40 flex flex-col overflow-y-auto bg-teal-600 px-6 pb-10 pt-28 text-white lg:hidden"
+          className={cn("fixed inset-0 z-40 flex flex-col overflow-y-auto bg-teal-600 px-6 pb-10 pt-28 text-white", !desktop && "lg:hidden")}
           initial={{ clipPath: "circle(0% at calc(100% - 3.5rem) 3.5rem)" }}
           animate={{ clipPath: "circle(150% at calc(100% - 3.5rem) 3.5rem)" }}
           exit={{ clipPath: "circle(0% at calc(100% - 3.5rem) 3.5rem)" }}
@@ -73,6 +81,18 @@ export function MobileMenu({
                     {item.label}
                     <ArrowUpRight className="size-7 text-turquoise-300" aria-hidden="true" />
                   </Link>
+                  {item.children && item.children.length > 0 && (
+                    <ul className="flex flex-col gap-1 border-b border-white/15 py-3 pl-1" aria-label={`${item.label} pages`}>
+                      {item.children.map((c) => (
+                        <li key={c.id}>
+                          <Link href={c.href} onClick={onClose} className="flex items-center gap-2 py-1.5 text-lg font-semibold text-white/85 hover:text-sun-400">
+                            <CornerDownRight className="size-4 text-turquoise-300" aria-hidden="true" />
+                            {c.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </motion.li>
               ))}
             </ul>

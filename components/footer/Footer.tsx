@@ -28,7 +28,7 @@ function FooterContent() {
       </h2>
       <Reveal className="mx-auto max-w-[1320px] px-5 pb-10 pt-16 sm:px-8 md:pt-20">
         <div
-          className="grid gap-12 lg:grid-cols-[var(--footer-cols)] lg:gap-10"
+          className="grid grid-cols-1 gap-12 lg:grid-cols-[var(--footer-cols)] lg:gap-10"
           style={{
             "--footer-cols":
               columns.length === 3 ? "1.25fr 0.8fr 1fr 0.85fr 1.45fr" : `1.25fr repeat(${columns.length}, minmax(0, 0.9fr)) 1.45fr`,

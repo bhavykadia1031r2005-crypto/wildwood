@@ -4,7 +4,9 @@
  * <head> (see app/layout.tsx), applying saved settings before the first paint.
  */
 
-export const A11Y_STORAGE_KEY = "wildwoods-a11y";
+/** v2: letter spacing no longer applies to display titles, so earlier saved settings were reset once. */
+export const A11Y_STORAGE_KEY = "wildwoods-a11y-v2";
+export const A11Y_OLD_STORAGE_KEYS = ["wildwoods-a11y"];
 
 export type A11ySettings = {
   /** Text size in percent of the default (80–150). */

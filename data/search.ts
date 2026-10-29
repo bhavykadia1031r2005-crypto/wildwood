@@ -59,10 +59,26 @@ const sections: SearchEntry[] = [
   {
     id: "p-events",
     kind: "Page",
-    label: "Events & festivals",
-    description: "Signature seasonal happenings",
+    label: "Events calendar",
+    description: "Festivals, holiday events, races and concerts by month",
     href: "/events",
-    keywords: "events festival fireworks kite concerts calendar",
+    keywords: "events calendar festival fireworks kite concerts christmas halloween oktoberfest bonfire 5k marathon parade tree lighting",
+  },
+  {
+    id: "p-business",
+    kind: "Page",
+    label: "Business info",
+    description: "Marketing partner perks, listings and the press room",
+    href: "/business-info#business-info",
+    keywords: "business info partners promote listing tourism improvement district gwtida administration press room media advertising",
+  },
+  {
+    id: "p-convention",
+    kind: "Page",
+    label: "Wildwoods Convention Center",
+    description: "260,000 sq ft on the boardwalk for meetings, shows and events",
+    href: "/business-info#convention-center",
+    keywords: "convention center meeting conference trade show expo ballroom exhibit venue group housing accommodations events calendar",
   },
 ];
 

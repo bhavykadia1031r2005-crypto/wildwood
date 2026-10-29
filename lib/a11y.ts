@@ -6,7 +6,7 @@
  */
 
 import { useSyncExternalStore } from "react";
-import { A11Y_DEFAULTS, A11Y_STORAGE_KEY, applyA11ySettings, type A11ySettings } from "./a11y-apply";
+import { A11Y_DEFAULTS, A11Y_OLD_STORAGE_KEYS, A11Y_STORAGE_KEY, applyA11ySettings, type A11ySettings } from "./a11y-apply";
 
 export type { A11ySettings };
 export { A11Y_DEFAULTS };
@@ -16,6 +16,7 @@ const listeners = new Set<() => void>();
 
 function read(): A11ySettings {
   try {
+    A11Y_OLD_STORAGE_KEYS.forEach((k) => window.localStorage.removeItem(k));
     const saved = JSON.parse(window.localStorage.getItem(A11Y_STORAGE_KEY) ?? "null");
     if (!saved || typeof saved !== "object") return A11Y_DEFAULTS;
     const next = { ...A11Y_DEFAULTS };

@@ -165,7 +165,7 @@ export function ExploreByArea() {
             role="tablist"
             aria-label="Choose how to explore"
             data-reveal
-            className="flex w-full gap-1 rounded-full bg-teal-700/70 p-1.5 ring-1 ring-inset ring-white/10 sm:w-auto"
+            className="flex w-full max-w-full gap-1 rounded-full bg-teal-700/70 p-1.5 ring-1 ring-inset ring-white/10 sm:w-auto"
           >
             {views.map((v) => {
               const active = view === v.id;
@@ -179,7 +179,7 @@ export function ExploreByArea() {
                   aria-controls="explore-panel"
                   onClick={() => setView(v.id)}
                   className={cn(
-                    "relative flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-semibold transition-colors sm:flex-none sm:px-5",
+                    "relative flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-semibold transition-colors sm:flex-initial sm:px-5",
                     active ? "text-teal-700" : "text-white/80 hover:text-white",
                   )}
                 >

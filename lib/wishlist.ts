@@ -9,13 +9,13 @@
 
 import { useSyncExternalStore } from "react";
 
-export type SavedType = "stay" | "place" | "activity" | "event";
+export type SavedType = "stay" | "place" | "activity" | "event" | "calendar";
 export type SavedRef = { type: SavedType; id: string };
 export type SavedItem = SavedRef & { title: string; savedAt: number };
 
 const STORAGE_KEY = "wildwoods-wishlist";
 const VERSION = 1;
-const TYPES: SavedType[] = ["stay", "place", "activity", "event"];
+const TYPES: SavedType[] = ["stay", "place", "activity", "event", "calendar"];
 const EMPTY: SavedItem[] = [];
 
 let items: SavedItem[] | null = null;

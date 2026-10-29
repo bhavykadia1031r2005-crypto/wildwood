@@ -345,7 +345,7 @@ export function ChatWidget() {
         transition={reduced ? { duration: 0 } : { duration: 0.6, delay: 1.2, ease }}
         whileTap={reduced ? undefined : { scale: 0.95 }}
         className={cn(
-          "group fixed bottom-5 right-5 z-[60] grid size-14 place-items-center rounded-full shadow-[0_16px_40px_-12px_rgb(4_23_28/0.6)] ring-4 ring-white/70 transition-colors sm:bottom-6 sm:right-6",
+          "chat-trigger group fixed bottom-5 right-5 z-[60] grid size-14 place-items-center rounded-full shadow-[0_16px_40px_-12px_rgb(4_23_28/0.6)] ring-4 ring-white/70 transition-colors sm:bottom-6 sm:right-6",
           open ? "bg-teal-500 text-white" : "bg-sun-500 text-teal-700 hover:bg-sun-300",
         )}
       >

@@ -15,13 +15,14 @@ import { SaveButton } from "./SaveButton";
 import { EmptyWishlist } from "./WishlistNav";
 
 type Filter = "all" | SavedType;
-const FILTERS: Filter[] = ["all", "stay", "place", "activity", "event"];
+const FILTERS: Filter[] = ["all", "stay", "place", "activity", "event", "calendar"];
 
 const actionLabel: Record<SavedType, string> = {
   stay: "View details",
   place: "Show on map",
   activity: "Explore",
   event: "See event",
+  calendar: "Open in calendar",
 };
 
 const useMounted = () =>
@@ -58,7 +59,7 @@ function MyList() {
   const [copied, setCopied] = useState<"ok" | "manual" | null>(null);
 
   const counts = useMemo(() => {
-    const c: Record<Filter, number> = { all: entries.length, stay: 0, place: 0, activity: 0, event: 0 };
+    const c: Record<Filter, number> = { all: entries.length, stay: 0, place: 0, activity: 0, event: 0, calendar: 0 };
     entries.forEach((e) => c[e.ref.type]++);
     return c;
   }, [entries]);

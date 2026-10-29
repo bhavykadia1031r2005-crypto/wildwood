@@ -5,6 +5,7 @@ import { useCallback, useMemo } from "react";
 import { stayAreas, stayTypeSingular } from "@/data/accommodations";
 import { categoryMeta } from "@/data/attractions";
 import { signatureEvents } from "@/data/events";
+import { calendarEvents } from "@/data/eventsCalendar";
 import { placeAreaName } from "@/components/explore/PlaceCard";
 import { useCms } from "@/lib/cms/store";
 import { emit, type SiteEvents } from "@/lib/events";
@@ -15,7 +16,16 @@ export const typeLabels: Record<SavedType, { one: string; many: string }> = {
   place: { one: "On the map", many: "On the map" },
   activity: { one: "Thing to do", many: "Things to do" },
   event: { one: "Event", many: "Events" },
+  calendar: { one: "Calendar event", many: "Calendar events" },
 };
+
+const DAY = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+/** "Oct 2 – Oct 4" or "Oct 10" for a calendar event's date range. */
+export function eventRange(start: string, end: string) {
+  const a = DAY.format(new Date(`${start}T00:00:00Z`));
+  const b = DAY.format(new Date(`${end}T00:00:00Z`));
+  return a === b ? a : `${a} – ${b}`;
+}
 
 export type SavedEntry = {
   ref: SavedItem;
@@ -73,6 +83,19 @@ export function useSavedEntries(refs: SavedItem[]): SavedEntry[] {
             if (!c) return gone;
             return { ref, title: c.label, subtitle: c.description, image: c.image, href: c.href, external: /^https?:\/\//.test(c.href), available: true };
           }
+          case "calendar": {
+            const c = calendarEvents.find((x) => x.id === ref.id);
+            if (!c) return gone;
+            return {
+              ref,
+              title: c.title,
+              subtitle: `${eventRange(c.start, c.end)}${c.free ? " · Free" : ""}${c.cancelled ? " · Cancelled" : ""}`,
+              image: c.image,
+              href: `/events#ev-${c.id}`,
+              external: false,
+              available: true,
+            };
+          }
           case "event": {
             const e = content.events.find((x) => x.id === ref.id);
             if (!e) return gone;
@@ -106,7 +129,9 @@ export function useResolvedRefs(refs: SavedRef[]): SavedItem[] {
               ? content.places.find((x) => x.id === r.id)?.name
               : r.type === "activity"
                 ? content.categories.find((x) => x.id === r.id)?.label
-                : content.events.find((x) => x.id === r.id)?.title;
+                : r.type === "calendar"
+                  ? calendarEvents.find((x) => x.id === r.id)?.title
+                  : content.events.find((x) => x.id === r.id)?.title;
         return { ...r, title: title ?? "Saved item", savedAt: 0 };
       }),
     [refs, content],

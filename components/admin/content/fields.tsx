@@ -47,7 +47,7 @@ export function validate<T>(fields: FieldDef<T>[], value: T): Errors {
     } else if (f.type === "checkboxes") {
       if (f.required && !(v as string[]).length) errors[f.key] = "Pick at least one.";
     } else if (f.type === "links") {
-      const links = v as LinkItem[];
+      const links = (v as LinkItem[] | undefined) ?? [];
       if (f.required && links.length === 0) errors[f.key] = "Add at least one link.";
       else if (links.some((l) => !l.label.trim())) errors[f.key] = "Every link needs a label.";
       else if (links.some((l) => !isSafeHref(l.href))) errors[f.key] = "Links must be a site path like /#stays or a full https:// link.";
@@ -208,7 +208,7 @@ function FieldControl<T>({ field: f, value, onChange, error }: { field: FieldDef
       );
       break;
     case "links":
-      control = <LinksControl links={v as LinkItem[]} max={f.max} onChange={set} />;
+      control = <LinksControl links={(v as LinkItem[] | undefined) ?? []} max={f.max} onChange={set} />;
       break;
   }
 

@@ -111,7 +111,7 @@ export function WishlistNav({ onOpenChange }: { onOpenChange?: (open: boolean) =
   );
 }
 
-const ORDER: SavedType[] = ["stay", "place", "activity", "event"];
+const ORDER: SavedType[] = ["stay", "place", "activity", "event", "calendar"];
 
 function Drawer({ onClose }: { onClose: () => void }) {
   const panel = useRef<HTMLDivElement>(null);

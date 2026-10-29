@@ -98,6 +98,46 @@ in `localStorage`, and restored by a tiny inline script before the first
 paint (`lib/a11y-apply.ts`). These tools help visitors but don't replace an
 accessible site; keep `/legal/accessibility` up to date.
 
+**Business Info (`/business-info`):** combines wildwoodsnj.com's Business Info
+and Convention Center pages on one page.
+
+- **Business Info** comes first: marketing-partner perks and the Promote,
+  Administration, Do Business With Us and Press Room cards.
+- **Convention Center** follows:
+  - the facility intro and key figures;
+  - the Plan, Attend, Resources and Get to Know Us cards;
+  - the Housing Bureau section on convention accommodations;
+  - client names;
+  - upcoming events, as listed on the official site with the date they were
+    read;
+  - a "Give us a ring" banner.
+
+Content lives in `data/business.ts`, photos in `public/images/business/`, and
+detail links open the official pages. "Business Info" in the main nav links to
+this page, and a floating switcher on the page moves between the two parts.
+Any nav link can also become a dropdown by giving it `children`
+(`components/navigation/NavDropdown.tsx`, editable under Admin → Navigation &
+footer). None of the default links uses one.
+
+**Events calendar (`/events`):** the official Wildwoods calendar (58 events,
+October 2026 – January 2027, read from wildwoodsnj.com/events-calendar):
+
+- **Calendar:** a month view of the days that have events, four day cards to a
+  row (three on small tablets), or a day-by-day list, which phones always get.
+  It has month navigation, search and a "Free events" filter.
+- **Event details:** each event opens in a popup with the official description
+  and photo, links to the organiser's site and the official page, and can be
+  saved to the wishlist. Links like `/events#ev-<id>` open an event directly.
+- **"Book your stay now" card:** sits beside the calendar on wide screens and
+  above it on smaller ones. It takes dates, guests and area; Search opens the
+  homepage stays section filtered by area and guests. Dates are for planning
+  only, because listings are samples. "Stay for this event" fills in an
+  event's dates.
+- **Signature events** follow below the calendar.
+
+Data lives in `data/eventsCalendar.ts` and photos in `public/images/events/`,
+with the date the calendar was read shown on the page.
+
 Supporting routes: `/guide` (the QR destination), `/events`, `/wishlist`, `/credits`,
 `/legal/privacy|terms|accessibility` (placeholders) and a branded 404.
 

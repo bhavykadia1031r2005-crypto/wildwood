@@ -8,6 +8,10 @@ export type SiteEvents = {
   "ww:focus-place": { id: string };
   "ww:search-stays": { query: string };
   "ww:open-stay": { id: string };
+  /** From the "Book your stay" card: area ("all" or a stay area id) and party size. */
+  "ww:filter-stays": { area: string; guests: number };
+  /** From an event's "Stay for this event" button: dates for the "Book your stay" card. */
+  "ww:prefill-dates": { checkIn: string; checkOut: string };
   "ww:wishlist-saved": { title: string };
 };
 
